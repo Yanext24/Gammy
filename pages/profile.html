@@ -328,16 +328,19 @@
                 <div class="footer-section">
                     <h4 class="footer-title">Навигация</h4>
                     <nav class="footer-nav">
-                        <a href="../index.html">Главная</a>
+                        <a href="../index.html">Лента</a>
+                        <a href="../blog.html">Блог</a>
                         <a href="categories.html">Категории</a>
                         <a href="about.html">О нас</a>
-                        <a href="contact.html">Контакты</a>
                     </nav>
                 </div>
                 <div class="footer-section">
                     <h4 class="footer-title">Категории</h4>
-                    <nav class="footer-nav" id="footerCategories">
-                        <!-- Loaded dynamically -->
+                    <nav class="footer-nav">
+                        <a href="categories.html?cat=tech">Технологии</a>
+                        <a href="categories.html?cat=design">Дизайн</a>
+                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
+                        <a href="categories.html?cat=business">Бизнес</a>
                     </nav>
                 </div>
                 <div class="footer-section">
@@ -363,8 +366,11 @@
     <script src="../js/api.js"></script>
     <script src="../js/app.js"></script>
     <script>
-        // Profile page functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        // Profile page functionality - uses API
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Wait for Auth to init
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             const user = Auth.getCurrentUser();
 
             // Redirect if not logged in
@@ -374,25 +380,22 @@
             }
 
             // Load user data
-            loadProfileData();
-
-            // Footer categories
-            loadFooterCategories();
+            loadProfileData(user);
 
             // Profile info form
-            document.getElementById('profileInfoForm').addEventListener('submit', function(e) {
+            document.getElementById('profileInfoForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                saveProfileInfo();
+                await saveProfileInfo();
             });
 
             // Change password form
-            document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                changePassword();
+                await changePassword();
             });
 
             // Avatar file upload
-            document.getElementById('avatarFileInput').addEventListener('change', function() {
+            document.getElementById('avatarFileInput').addEventListener('change', async function() {
                 const file = this.files[0];
                 if (!file) return;
 
@@ -402,11 +405,16 @@
                 }
 
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     const imageData = e.target.result;
-                    document.getElementById('avatarUrl').value = imageData;
-                    updateAvatarPreview(imageData);
-                    document.getElementById('removeAvatarBtn').style.display = 'block';
+                    try {
+                        const media = await API.uploadBase64(imageData, file.name);
+                        document.getElementById('avatarUrl').value = media.path;
+                        updateAvatarPreview(media.path);
+                        document.getElementById('removeAvatarBtn').style.display = 'block';
+                    } catch (err) {
+                        UI.showToast('Ошибка загрузки аватара', 'error');
+                    }
                 };
                 reader.readAsDataURL(file);
             });
@@ -421,98 +429,73 @@
 
             function updateAvatarPreview(url) {
                 const preview = document.getElementById('avatarPreview');
+                const currentUser = Auth.getCurrentUser();
                 if (url) {
-                    preview.innerHTML = `<img src="${url}" alt="Avatar" onerror="this.style.display='none'; this.parentElement.textContent='${user.name.charAt(0).toUpperCase()}'">`;
+                    preview.innerHTML = `<img src="${url}" alt="Avatar" onerror="this.style.display='none'; this.parentElement.textContent='${currentUser?.name?.charAt(0).toUpperCase() || 'U'}'">`;
                 } else {
-                    preview.innerHTML = user.name.charAt(0).toUpperCase();
+                    preview.innerHTML = currentUser?.name?.charAt(0).toUpperCase() || 'U';
                 }
             }
 
-            // Delete account
+            // Delete account - disabled for now (needs backend support)
             document.getElementById('deleteAccountBtn').addEventListener('click', function() {
-                if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) {
-                    if (confirm('Это последнее предупреждение. Все ваши данные будут удалены навсегда.')) {
-                        deleteAccount();
-                    }
-                }
+                UI.showToast('Удаление аккаунта временно недоступно', 'error');
             });
 
-            function loadProfileData() {
-                const users = DB.getUsers();
-                const fullUser = users.find(u => u.id === user.id);
-                const comments = DB.getComments().filter(c => c.userId === user.id);
-                const reactions = DB.getUserReactions();
-                const likesCount = Object.values(reactions).filter(r => r === 'like').length;
-
+            function loadProfileData(user) {
                 // Header
-                document.getElementById('profileAvatarLarge').innerHTML = fullUser.avatar
-                    ? `<img src="${fullUser.avatar}" alt="${user.name}">`
+                document.getElementById('profileAvatarLarge').innerHTML = user.avatar
+                    ? `<img src="${user.avatar}" alt="${user.name}">`
                     : user.name.charAt(0).toUpperCase();
                 document.getElementById('profileName').textContent = user.name;
                 document.getElementById('profileEmail').textContent = user.email;
-                document.getElementById('profileComments').textContent = comments.length;
-                document.getElementById('profileLikes').textContent = likesCount;
+                document.getElementById('profileComments').textContent = user.comments_count || 0;
+                document.getElementById('profileLikes').textContent = user.likes_count || 0;
 
                 // Calculate membership
-                const memberDays = Math.floor((new Date() - new Date(user.date)) / (1000 * 60 * 60 * 24));
-                document.getElementById('profileMember').textContent = memberDays + ' дн.';
+                if (user.created_at) {
+                    const memberDays = Math.floor((new Date() - new Date(user.created_at)) / (1000 * 60 * 60 * 24));
+                    document.getElementById('profileMember').textContent = memberDays + ' дн.';
+                }
 
                 // Form
                 document.getElementById('profileNameInput').value = user.name;
                 document.getElementById('profileEmailDisplay').value = user.email;
-                document.getElementById('profileBio').value = fullUser.bio || '';
-                document.getElementById('avatarUrl').value = fullUser.avatar || '';
+                document.getElementById('profileBio').value = user.bio || '';
+                document.getElementById('avatarUrl').value = user.avatar || '';
 
                 // Avatar preview
                 const preview = document.getElementById('avatarPreview');
-                if (fullUser.avatar) {
-                    preview.innerHTML = `<img src="${fullUser.avatar}" alt="${user.name}">`;
+                if (user.avatar) {
+                    preview.innerHTML = `<img src="${user.avatar}" alt="${user.name}">`;
                     document.getElementById('removeAvatarBtn').style.display = 'block';
                 } else {
                     preview.innerHTML = user.name.charAt(0).toUpperCase();
                     document.getElementById('removeAvatarBtn').style.display = 'none';
                 }
-
-                // Notifications
-                document.getElementById('notifyComments').checked = fullUser.notifyComments !== false;
-                document.getElementById('notifyNewsletter').checked = fullUser.notifyNewsletter === true;
             }
 
-            function saveProfileInfo() {
-                const users = DB.getUsers();
-                const userIndex = users.findIndex(u => u.id === user.id);
-
-                if (userIndex === -1) {
-                    UI.showToast('Ошибка: пользователь не найден', 'error');
-                    return;
-                }
-
+            async function saveProfileInfo() {
                 const newName = document.getElementById('profileNameInput').value;
                 const newBio = document.getElementById('profileBio').value;
                 const newAvatar = document.getElementById('avatarUrl').value;
-                const notifyComments = document.getElementById('notifyComments').checked;
-                const notifyNewsletter = document.getElementById('notifyNewsletter').checked;
 
-                // Update user
-                users[userIndex].name = newName;
-                users[userIndex].bio = newBio;
-                users[userIndex].avatar = newAvatar;
-                users[userIndex].notifyComments = notifyComments;
-                users[userIndex].notifyNewsletter = notifyNewsletter;
-
-                localStorage.setItem('gammy_users', JSON.stringify(users));
-
-                // Update current user session
-                const currentUser = Auth.getCurrentUser();
-                currentUser.name = newName;
-                localStorage.setItem('gammy_current_user', JSON.stringify(currentUser));
-
-                UI.showToast('Профиль обновлён!');
-                loadProfileData();
-                App.updateAuthState();
+                try {
+                    const updated = await API.updateMe({
+                        name: newName,
+                        bio: newBio,
+                        avatar: newAvatar
+                    });
+                    Auth.currentUser = updated;
+                    Auth.updateUI();
+                    loadProfileData(updated);
+                    UI.showToast('Профиль обновлён!');
+                } catch (err) {
+                    UI.showToast(err.message || 'Ошибка сохранения', 'error');
+                }
             }
 
-            function changePassword() {
+            async function changePassword() {
                 const currentPassword = document.getElementById('currentPassword').value;
                 const newPassword = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmNewPassword').value;
@@ -522,50 +505,13 @@
                     return;
                 }
 
-                const users = DB.getUsers();
-                const userIndex = users.findIndex(u => u.id === user.id);
-
-                if (userIndex === -1) {
-                    UI.showToast('Ошибка: пользователь не найден', 'error');
-                    return;
+                try {
+                    await API.changePassword(currentPassword, newPassword);
+                    UI.showToast('Пароль успешно изменён!');
+                    document.getElementById('changePasswordForm').reset();
+                } catch (err) {
+                    UI.showToast(err.message || 'Неверный текущий пароль', 'error');
                 }
-
-                if (users[userIndex].password !== currentPassword) {
-                    UI.showToast('Неверный текущий пароль', 'error');
-                    return;
-                }
-
-                users[userIndex].password = newPassword;
-                localStorage.setItem('gammy_users', JSON.stringify(users));
-
-                UI.showToast('Пароль успешно изменён!');
-                document.getElementById('changePasswordForm').reset();
-            }
-
-            function deleteAccount() {
-                const users = DB.getUsers().filter(u => u.id !== user.id);
-                localStorage.setItem('gammy_users', JSON.stringify(users));
-
-                // Remove user's comments
-                const comments = DB.getComments().filter(c => c.userId !== user.id);
-                localStorage.setItem('gammy_comments', JSON.stringify(comments));
-
-                // Logout
-                Auth.logout();
-                UI.showToast('Аккаунт удалён');
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1000);
-            }
-
-            function loadFooterCategories() {
-                const container = document.getElementById('footerCategories');
-                if (!container) return;
-
-                const categories = DB.getCategories();
-                container.innerHTML = categories.map(cat =>
-                    `<a href="categories.html?cat=${cat.slug}">${cat.name}</a>`
-                ).join('');
             }
         });
     </script>
