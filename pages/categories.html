@@ -205,51 +205,7 @@
         </div>
     </footer>
 
-    <div class="modal" id="authModal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content glass">
-            <button class="modal-close" id="modalClose">&times;</button>
-            <div class="auth-form" id="loginForm">
-                <h2 class="modal-title">Вход</h2>
-                <form id="loginFormElement">
-                    <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Пароль</label>
-                        <input type="password" id="loginPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
-                </form>
-                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
-            </div>
-            <div class="auth-form hidden" id="registerForm">
-                <h2 class="modal-title">Регистрация</h2>
-                <form id="registerFormElement">
-                    <div class="form-group">
-                        <label for="registerName">Имя</label>
-                        <input type="text" id="registerName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPassword">Пароль</label>
-                        <input type="password" id="registerPassword" minlength="6" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
-                        <input type="password" id="registerPasswordConfirm" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
-                </form>
-                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
-            </div>
-        </div>
-    </div>
-
+    <!-- Toast Notification -->
     <div class="toast" id="toast">
         <span class="toast-message" id="toastMessage"></span>
     </div>
@@ -257,165 +213,153 @@
     <script src="../js/api.js"></script>
     <script src="../js/app.js"></script>
     <script>
-        // Categories page - dynamic loading
-        document.addEventListener('DOMContentLoaded', function() {
-            const categories = DB.getCategories();
-            const articles = DB.getPublishedArticles();
+        // Categories page - dynamic loading with API
+        let categories = [];
+        let articles = [];
+        let currentCategory = null;
+        let displayedArticles = 0;
+        const articlesPerLoad = 6;
 
-            let currentCategory = null;
-            let displayedArticles = 0;
-            const articlesPerLoad = 6;
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                categories = await API.getCategories();
+                articles = await API.getArticles();
 
-            // Build category name map from DB
-            const categoryNames = {};
-            categories.forEach(cat => {
-                categoryNames[cat.slug] = cat.name;
-            });
+                renderCategoryCards();
 
-            // Get URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const catParam = urlParams.get('cat');
+                // Get URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const catParam = urlParams.get('cat');
 
-            function getArticleWord(count) {
-                const lastDigit = count % 10;
-                const lastTwoDigits = count % 100;
-                if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'статей';
-                if (lastDigit === 1) return 'статья';
-                if (lastDigit >= 2 && lastDigit <= 4) return 'статьи';
-                return 'статей';
-            }
-
-            // Render category cards dynamically
-            function renderCategoryCards() {
-                const container = document.getElementById('categoryCards');
-                container.innerHTML = categories.map(cat => {
-                    const count = articles.filter(a => a.category === cat.slug).length;
-                    return `
-                        <div class="category-card-page" data-category="${cat.slug}">
-                            <div class="category-card-page-icon" style="background: ${cat.color};">
-                                ${cat.icon}
-                            </div>
-                            <h3>${cat.name}</h3>
-                            <div class="category-card-page-count">${count} ${getArticleWord(count)}</div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Add click handlers
-                container.querySelectorAll('.category-card-page').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const category = card.dataset.category;
-                        if (currentCategory === category) {
-                            selectCategory(null);
-                        } else {
-                            selectCategory(category);
-                        }
-                    });
-                });
-            }
-
-            function selectCategory(category) {
-                // Update URL
-                const url = new URL(window.location);
-                if (category) {
-                    url.searchParams.set('cat', category);
+                if (catParam && categories.find(c => c.slug === catParam)) {
+                    selectCategory(catParam);
                 } else {
-                    url.searchParams.delete('cat');
+                    loadArticles(true);
                 }
-                window.history.pushState({}, '', url);
-
-                // Update UI
-                document.querySelectorAll('.category-card-page').forEach(c => {
-                    c.classList.toggle('active', c.dataset.category === category);
-                });
-
-                currentCategory = category;
-                document.getElementById('filteredTitle').textContent = category
-                    ? `Статьи: ${categoryNames[category]}`
-                    : 'Все статьи';
-
-                displayedArticles = 0;
-                loadArticles(true);
-            }
-
-            function loadArticles(reset = false) {
-                const grid = document.getElementById('articlesGrid');
-                if (reset) {
-                    grid.innerHTML = '';
-                    displayedArticles = 0;
-                }
-
-                let filteredArticles = articles;
-                if (currentCategory) {
-                    filteredArticles = articles.filter(a => a.category === currentCategory);
-                }
-
-                const batch = filteredArticles.slice(displayedArticles, displayedArticles + articlesPerLoad);
-
-                batch.forEach(article => {
-                    grid.appendChild(createArticleCard(article));
-                });
-
-                displayedArticles += batch.length;
-
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (displayedArticles >= filteredArticles.length) {
-                    loadMoreBtn.style.display = 'none';
-                } else {
-                    loadMoreBtn.style.display = 'inline-flex';
-                }
-            }
-
-            function createArticleCard(article) {
-                const card = document.createElement('article');
-                card.className = 'article-card';
-                card.innerHTML = `
-                    <div class="article-image">
-                        <img src="${article.image}" alt="${article.title}" loading="lazy">
-                        <span class="article-category">${UI.getCategoryName(article.category)}</span>
-                    </div>
-                    <div class="article-content">
-                        <h3 class="article-title">
-                            <a href="article.html?id=${article.id}">${article.title}</a>
-                        </h3>
-                        <p class="article-excerpt">${article.excerpt}</p>
-                        <div class="article-meta">
-                            <div class="article-author">
-                                <img src="${UI.getAvatarUrl(article.authorName)}" alt="${article.authorName}" class="author-avatar">
-                                <div class="author-info">
-                                    <span class="author-name">${article.authorName}</span>
-                                    <span class="article-date">${UI.formatDate(article.date)}</span>
-                                </div>
-                            </div>
-                            <div class="article-stats">
-                                <span class="stat-item">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    ${article.views}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return card;
+            } catch (err) {
+                console.error('Init error:', err);
             }
 
             // Load more button
             document.getElementById('loadMoreBtn').addEventListener('click', () => {
                 loadArticles(false);
             });
-
-            // Initialize
-            renderCategoryCards();
-
-            if (catParam && categoryNames[catParam]) {
-                selectCategory(catParam);
-            } else {
-                loadArticles(true);
-            }
         });
+
+        function getArticleWord(count) {
+            const lastDigit = count % 10;
+            const lastTwoDigits = count % 100;
+            if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'статей';
+            if (lastDigit === 1) return 'статья';
+            if (lastDigit >= 2 && lastDigit <= 4) return 'статьи';
+            return 'статей';
+        }
+
+        function renderCategoryCards() {
+            const container = document.getElementById('categoryCards');
+            container.innerHTML = categories.map(cat => {
+                return `
+                    <div class="category-card-page" data-category="${cat.slug}">
+                        <div class="category-card-page-icon" style="background: ${cat.color || '#6366f1'};">
+                            ${cat.icon || cat.name.charAt(0)}
+                        </div>
+                        <h3>${cat.name}</h3>
+                        <div class="category-card-page-count">${cat.articles_count || 0} ${getArticleWord(cat.articles_count || 0)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click handlers
+            container.querySelectorAll('.category-card-page').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.dataset.category;
+                    if (currentCategory === category) {
+                        selectCategory(null);
+                    } else {
+                        selectCategory(category);
+                    }
+                });
+            });
+        }
+
+        function selectCategory(category) {
+            // Update URL
+            const url = new URL(window.location);
+            if (category) {
+                url.searchParams.set('cat', category);
+            } else {
+                url.searchParams.delete('cat');
+            }
+            window.history.pushState({}, '', url);
+
+            // Update UI
+            document.querySelectorAll('.category-card-page').forEach(c => {
+                c.classList.toggle('active', c.dataset.category === category);
+            });
+
+            currentCategory = category;
+            const catName = categories.find(c => c.slug === category)?.name;
+            document.getElementById('filteredTitle').textContent = category
+                ? `Статьи: ${catName}`
+                : 'Все статьи';
+
+            displayedArticles = 0;
+            loadArticles(true);
+        }
+
+        function loadArticles(reset = false) {
+            const grid = document.getElementById('articlesGrid');
+            if (reset) {
+                grid.innerHTML = '';
+                displayedArticles = 0;
+            }
+
+            let filteredArticles = articles;
+            if (currentCategory) {
+                filteredArticles = articles.filter(a => a.category === currentCategory);
+            }
+
+            const batch = filteredArticles.slice(displayedArticles, displayedArticles + articlesPerLoad);
+
+            if (batch.length === 0 && displayedArticles === 0) {
+                grid.innerHTML = '<p class="no-results" style="text-align:center;padding:40px;color:var(--text-muted);">Статьи не найдены</p>';
+            }
+
+            batch.forEach(article => {
+                grid.appendChild(createArticleCard(article));
+            });
+
+            displayedArticles += batch.length;
+
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (displayedArticles >= filteredArticles.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+            }
+        }
+
+        function createArticleCard(article) {
+            const card = document.createElement('article');
+            card.className = 'article-card glass';
+            card.innerHTML = `
+                <a href="article.html?slug=${article.slug}" class="article-image-link">
+                    <img src="${article.image || 'https://via.placeholder.com/400x250'}" alt="${article.title}" class="article-image" loading="lazy">
+                </a>
+                <div class="article-content">
+                    <a href="article.html?slug=${article.slug}" class="article-category" style="color: ${UI.getCategoryColor(article.category)}">${UI.getCategoryName(article.category)}</a>
+                    <a href="article.html?slug=${article.slug}" class="article-title-link">
+                        <h3 class="article-title">${article.title}</h3>
+                    </a>
+                    <p class="article-excerpt">${UI.truncate(article.excerpt, 120)}</p>
+                    <div class="article-meta">
+                        <span class="article-date">${UI.formatDate(article.created_at)}</span>
+                        <span class="article-views">${article.views || 0} просмотров</span>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
     </script>
 </body>
 </html>
