@@ -217,16 +217,28 @@ const Theme = {
 
 const Modals = {
     init() {
+        console.log('[Modals] init() called');
+
         // Login button
         const loginBtn = document.getElementById('loginBtn');
+        console.log('[Modals] loginBtn:', loginBtn);
         if (loginBtn) {
-            loginBtn.addEventListener('click', () => this.showLoginModal());
+            loginBtn.addEventListener('click', () => {
+                console.log('[Modals] loginBtn clicked!');
+                this.showLoginModal();
+            });
+            console.log('[Modals] loginBtn listener attached');
         }
 
         // Register button
         const registerBtn = document.getElementById('registerBtn');
+        console.log('[Modals] registerBtn:', registerBtn);
         if (registerBtn) {
-            registerBtn.addEventListener('click', () => this.showRegisterModal());
+            registerBtn.addEventListener('click', () => {
+                console.log('[Modals] registerBtn clicked!');
+                this.showRegisterModal();
+            });
+            console.log('[Modals] registerBtn listener attached');
         }
 
         // Logout button
@@ -484,7 +496,8 @@ const ArticlePage = {
             this.initCommentForm();
         } catch (err) {
             console.error('Load article error:', err);
-            document.querySelector('.article-page')?.innerHTML = '<div class="container"><p>Статья не найдена</p></div>';
+            const page = document.querySelector('.article-page');
+            if (page) page.innerHTML = '<div class="container"><p>Статья не найдена</p></div>';
         }
     },
 
@@ -738,10 +751,17 @@ const ProfilePage = {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('[Gammy] DOMContentLoaded fired');
+
     // Init core modules
     Theme.init();
+    console.log('[Gammy] Theme initialized');
+
     MobileMenu.init();
+    console.log('[Gammy] MobileMenu initialized');
+
     Modals.init();
+    console.log('[Gammy] Modals initialized');
 
     // Init auth
     await Auth.init();
