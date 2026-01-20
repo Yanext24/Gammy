@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="">
+    <title>Пост - Gammy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Лента</a>
+                <a href="../blog.html" class="nav-link">Блог</a>
+                <a href="categories.html" class="nav-link">Категории</a>
+                <a href="about.html" class="nav-link">О нас</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn"><span id="userInitial">U</span></button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="profile.html" class="dropdown-item">Профиль</a>
+                        <a href="admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="../index.html" class="mobile-nav-link">Лента</a>
+            <a href="../blog.html" class="mobile-nav-link">Блог</a>
+            <a href="categories.html" class="mobile-nav-link">Категории</a>
+            <a href="about.html" class="mobile-nav-link">О нас</a>
+        </nav>
+    </div>
+
+    <!-- Post Page -->
+    <main class="post-page">
+        <div class="container">
+            <div class="post-page-layout">
+                <article class="post-full" id="postFull">
+                    <!-- Post will be loaded here -->
+                    <div class="loading-post">
+                        <p>Загрузка поста...</p>
+                    </div>
+                </article>
+
+                <!-- Comments Section -->
+                <section class="post-comments-section" id="postCommentsSection" style="display: none;">
+                    <h3 class="comments-section-title">
+                        Комментарии <span id="postCommentsCount">0</span>
+                    </h3>
+
+                    <!-- Comment Form -->
+                    <div class="post-comment-form" id="postCommentForm">
+                        <div class="post-comment-form-avatar" id="commentFormAvatar">?</div>
+                        <div class="post-comment-form-input">
+                            <textarea id="postCommentText" placeholder="Напишите комментарий..." rows="2"></textarea>
+                            <button class="btn btn-primary btn-sm" id="submitPostComment">Отправить</button>
+                        </div>
+                    </div>
+
+                    <!-- Comments List -->
+                    <div class="post-comments-list" id="postCommentsList">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/feed.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+
+            if (!slug) {
+                window.location.href = 'feed.html';
+                return;
+            }
+
+            const post = Feed.getPostBySlug(slug);
+            if (!post) {
+                document.getElementById('postFull').innerHTML = `
+                    <div class="post-not-found" style="text-align: center; padding: 60px 20px;">
+                        <h2>Пост не найден</h2>
+                        <p style="color: var(--text-muted); margin: 16px 0;">Возможно, он был удалён или ссылка неверна</p>
+                        <a href="feed.html" class="btn btn-primary">Вернуться к ленте</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Update meta tags
+            document.title = `${post.content.substring(0, 50)}... - Gammy`;
+            document.querySelector('meta[name="description"]')?.setAttribute('content', post.content.substring(0, 160));
+            document.querySelector('meta[property="og:title"]')?.setAttribute('content', post.content.substring(0, 50));
+            document.querySelector('meta[property="og:description"]')?.setAttribute('content', post.content.substring(0, 160));
+            if (post.images && post.images.length > 0) {
+                document.querySelector('meta[property="og:image"]')?.setAttribute('content', post.images[0]);
+            }
+
+            // Increment views
+            const posts = Feed.getPosts();
+            const postIndex = posts.findIndex(p => p.id === post.id);
+            if (postIndex !== -1) {
+                posts[postIndex].views = (posts[postIndex].views || 0) + 1;
+                localStorage.setItem('gammy_posts', JSON.stringify(posts));
+            }
+
+            // Get author
+            const users = DB.getUsers();
+            const author = users.find(u => u.id === post.authorId) || { name: post.authorName || 'Аноним', avatar: null };
+            const avatarHtml = author.avatar
+                ? `<img src="${author.avatar}" alt="${author.name}">`
+                : author.name.charAt(0).toUpperCase();
+
+            // Format content with links
+            const formattedContent = Feed.formatContent(post.content);
+
+            // Check if liked
+            const postLikes = JSON.parse(localStorage.getItem('gammy_post_likes') || '{}');
+            const currentUser = Auth.getCurrentUser();
+            const isLiked = currentUser && postLikes[post.id]?.includes(currentUser.id);
+
+            // Images grid class
+            let imagesClass = '';
+            if (post.images && post.images.length > 0) {
+                if (post.images.length === 1) imagesClass = 'single';
+                else if (post.images.length === 2) imagesClass = 'double';
+                else if (post.images.length === 3) imagesClass = 'triple';
+                else imagesClass = 'quad';
+            }
+
+            // Render post
+            document.getElementById('postFull').innerHTML = `
+                <div class="post-full-header">
+                    <div class="post-author-avatar post-full-avatar">${avatarHtml}</div>
+                    <div class="post-author-info">
+                        <span class="post-author-name">${author.name}</span>
+                        <div class="post-meta">${UI.formatDate(post.date)} • ${post.views || 0} просмотров</div>
+                    </div>
+                </div>
+                <div class="post-full-content">
+                    <div class="post-text">${formattedContent}</div>
+                    ${post.images && post.images.length > 0 ? `
+                        <div class="post-images ${imagesClass}" style="margin-top: 20px;">
+                            ${post.images.map(img => `
+                                <img src="${img}" class="post-image" onclick="window.open('${img}', '_blank')" alt="">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${post.tags && post.tags.length > 0 ? `
+                        <div class="post-tags" style="margin-top: 20px;">
+                            ${post.tags.map(tag => `
+                                <a href="feed.html?tag=${tag.toLowerCase()}" class="post-tag">#${tag}</a>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="post-full-actions">
+                    <button class="post-action-btn ${isLiked ? 'liked' : ''}" onclick="togglePostLike(${post.id})">
+                        <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        <span id="postLikeCount">${post.likes || 0}</span>
+                    </button>
+                    <button class="post-action-btn" onclick="shareCurrentPost()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                        Поделиться
+                    </button>
+                </div>
+            `;
+
+            // Show comments section
+            document.getElementById('postCommentsSection').style.display = 'block';
+            loadPostComments(post.id);
+
+            // Comment form avatar
+            updateCommentFormAvatar();
+
+            // Submit comment
+            document.getElementById('submitPostComment').addEventListener('click', () => {
+                submitPostComment(post.id);
+            });
+        });
+
+        function togglePostLike(postId) {
+            Feed.toggleLike(postId);
+            // Reload the page to update UI
+            location.reload();
+        }
+
+        function shareCurrentPost() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url });
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    UI.showToast('Ссылка скопирована!');
+                });
+            }
+        }
+
+        function updateCommentFormAvatar() {
+            const avatar = document.getElementById('commentFormAvatar');
+            const user = Auth.getCurrentUser();
+            if (user) {
+                const users = DB.getUsers();
+                const fullUser = users.find(u => u.id === user.id);
+                if (fullUser && fullUser.avatar) {
+                    avatar.innerHTML = `<img src="${fullUser.avatar}" alt="${user.name}">`;
+                } else {
+                    avatar.textContent = user.name.charAt(0).toUpperCase();
+                }
+            }
+        }
+
+        function loadPostComments(postId) {
+            const comments = getPostComments(postId);
+            const users = DB.getUsers();
+            const container = document.getElementById('postCommentsList');
+            const countEl = document.getElementById('postCommentsCount');
+
+            countEl.textContent = comments.length;
+
+            if (comments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">Пока нет комментариев</p>';
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => {
+                const author = users.find(u => u.id === comment.userId) || { name: comment.name, avatar: null };
+                const avatarHtml = author.avatar
+                    ? `<img src="${author.avatar}" alt="${author.name}">`
+                    : (author.name || 'А').charAt(0).toUpperCase();
+
+                return `
+                    <div class="post-comment">
+                        <div class="post-comment-avatar">${avatarHtml}</div>
+                        <div class="post-comment-body">
+                            <div class="post-comment-header">
+                                <span class="post-comment-author">${author.name || comment.name}</span>
+                                <span class="post-comment-date">${UI.formatDate(comment.date)}</span>
+                            </div>
+                            <div class="post-comment-text">${comment.text}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getPostComments(postId) {
+            const allComments = JSON.parse(localStorage.getItem('gammy_post_comments') || '[]');
+            return allComments.filter(c => c.postId === postId);
+        }
+
+        function submitPostComment(postId) {
+            const text = document.getElementById('postCommentText').value.trim();
+            const user = Auth.getCurrentUser();
+
+            if (!text) {
+                UI.showToast('Напишите комментарий', 'error');
+                return;
+            }
+
+            if (!user) {
+                UI.showToast('Войдите, чтобы комментировать', 'error');
+                return;
+            }
+
+            const comments = JSON.parse(localStorage.getItem('gammy_post_comments') || '[]');
+            comments.push({
+                id: Date.now(),
+                postId,
+                userId: user.id,
+                name: user.name,
+                text,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('gammy_post_comments', JSON.stringify(comments));
+
+            // Update post comment count
+            const posts = Feed.getPosts();
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                posts[postIndex].comments = (posts[postIndex].comments || 0) + 1;
+                localStorage.setItem('gammy_posts', JSON.stringify(posts));
+            }
+
+            document.getElementById('postCommentText').value = '';
+            UI.showToast('Комментарий добавлен!');
+            loadPostComments(postId);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="О блоге Gammy - узнайте больше о нашей команде и миссии">
+    <meta name="keywords" content="о нас, gammy, команда, блог">
+    <title>О нас - Gammy Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .about-hero {
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+        .about-hero h1 {
+            font-size: clamp(36px, 5vw, 56px);
+            margin-bottom: 24px;
+        }
+        .about-hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .about-content {
+            padding: 60px 0 100px;
+        }
+        .about-section {
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+        .about-section h2 {
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+        .about-section p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+        .team-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+        }
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        .team-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .team-role {
+            font-size: 14px;
+            color: var(--accent-primary);
+            margin-bottom: 16px;
+        }
+        .team-bio {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 48px 0;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Лента</a>
+                <a href="../blog.html" class="nav-link">Блог</a>
+                <a href="categories.html" class="nav-link">Категории</a>
+                <a href="about.html" class="nav-link active">О нас</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn"><span id="userInitial">U</span></button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="profile.html" class="dropdown-item">Профиль</a>
+                        <a href="admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="../index.html" class="mobile-nav-link">Лента</a>
+            <a href="../blog.html" class="mobile-nav-link">Блог</a>
+            <a href="categories.html" class="mobile-nav-link">Категории</a>
+            <a href="about.html" class="mobile-nav-link active">О нас</a>
+        </nav>
+    </div>
+
+    <main>
+        <section class="about-hero">
+            <div class="container">
+                <h1>О <span class="gradient-text">Gammy Blog</span></h1>
+                <p>Мы создаём качественный контент о технологиях, дизайне и инновациях, чтобы вдохновлять и обучать</p>
+            </div>
+        </section>
+
+        <section class="about-content">
+            <div class="container">
+                <!-- Dynamic content from admin panel -->
+                <div class="about-dynamic-content"></div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Статей опубликовано</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Читателей в месяц</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">500+</div>
+                        <div class="stat-label">Комментариев</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2024</div>
+                        <div class="stat-label">Год основания</div>
+                    </div>
+                </div>
+
+                <div class="about-section">
+                    <h2>Наша миссия</h2>
+                    <p>Gammy Blog был создан с одной целью — делиться знаниями и опытом с теми, кто стремится развиваться в сфере технологий и дизайна. Мы верим, что качественный контент может изменить жизнь человека, открыв новые возможности и перспективы.</p>
+                    <p>Каждая наша статья — это результат тщательного исследования и практического опыта. Мы не просто пишем о трендах, мы глубоко погружаемся в каждую тему, чтобы предоставить нашим читателям действительно ценную информацию.</p>
+                </div>
+
+                <div class="about-section">
+                    <h2>Наши ценности</h2>
+                    <p><strong>Качество превыше количества.</strong> Мы публикуем только те материалы, в которых уверены на 100%. Каждая статья проходит строгую редактуру и проверку фактов.</p>
+                    <p><strong>Практичность.</strong> Мы фокусируемся на информации, которую можно применить на практике. Теория важна, но практические навыки — бесценны.</p>
+                    <p><strong>Сообщество.</strong> Мы ценим каждого читателя и стремимся создать пространство для конструктивного диалога и обмена опытом.</p>
+                </div>
+
+                <div class="about-section">
+                    <h2>Наша команда</h2>
+                    <div class="team-grid">
+                        <div class="team-card">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=alex" alt="Алексей" class="team-avatar">
+                            <h3 class="team-name">Алексей Иванов</h3>
+                            <div class="team-role">Главный редактор</div>
+                            <p class="team-bio">10+ лет опыта в IT. Специализируется на технологиях и разработке.</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=maria" alt="Мария" class="team-avatar">
+                            <h3 class="team-name">Мария Петрова</h3>
+                            <div class="team-role">Дизайн-эксперт</div>
+                            <p class="team-bio">UI/UX дизайнер с опытом работы в крупных продуктовых компаниях.</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=dmitry" alt="Дмитрий" class="team-avatar">
+                            <h3 class="team-name">Дмитрий Сидоров</h3>
+                            <div class="team-role">Бизнес-аналитик</div>
+                            <p class="team-bio">Эксперт в области стартапов и предпринимательства.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="../index.html" class="logo">
+                        <span class="logo-icon">G</span>
+                        <span class="logo-text">Gammy</span>
+                    </a>
+                    <p class="footer-desc">Современный блог о технологиях, дизайне и инновациях.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Навигация</h4>
+                    <nav class="footer-nav">
+                        <a href="../index.html">Лента</a>
+                        <a href="../blog.html">Блог</a>
+                        <a href="categories.html">Категории</a>
+                        <a href="about.html">О нас</a>
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Категории</h4>
+                    <nav class="footer-nav">
+                        <a href="categories.html?cat=tech">Технологии</a>
+                        <a href="categories.html?cat=design">Дизайн</a>
+                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
+                        <a href="categories.html?cat=business">Бизнес</a>
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Подписка</h4>
+                    <p class="footer-text">Получайте новые статьи на почту</p>
+                    <form class="subscribe-form" id="subscribeForm">
+                        <input type="email" placeholder="Ваш email" required>
+                        <button type="submit" class="btn btn-primary">OK</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy Blog. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+</body>
+</html>

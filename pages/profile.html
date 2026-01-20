@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Настройки профиля - Gammy Blog">
+    <title>Профиль - Gammy Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .profile-page {
+            padding: 100px 0 60px;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            overflow: hidden;
+        }
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-header-info h1 {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+        .profile-header-info p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .profile-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+        .profile-stat {
+            text-align: center;
+        }
+        .profile-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .profile-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .profile-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .profile-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-section-title svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-primary);
+        }
+        .profile-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 600px) {
+            .profile-form-row {
+                grid-template-columns: 1fr;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-stats {
+                justify-content: center;
+            }
+        }
+        /* Avatar styles are now in style.css */
+        .danger-zone {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .danger-zone .profile-section-title {
+            color: var(--error);
+        }
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Лента</a>
+                <a href="../blog.html" class="nav-link">Блог</a>
+                <a href="categories.html" class="nav-link">Категории</a>
+                <a href="about.html" class="nav-link">О нас</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn"><span id="userInitial">U</span></button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="profile.html" class="dropdown-item">Профиль</a>
+                        <a href="admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="../index.html" class="mobile-nav-link">Лента</a>
+            <a href="../blog.html" class="mobile-nav-link">Блог</a>
+            <a href="categories.html" class="mobile-nav-link">Категории</a>
+            <a href="about.html" class="mobile-nav-link">О нас</a>
+        </nav>
+    </div>
+
+    <main class="profile-page">
+        <div class="container">
+            <div class="profile-container">
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+                    <div class="profile-header-info">
+                        <h1 id="profileName">Пользователь</h1>
+                        <p id="profileEmail">user@email.com</p>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="profileComments">0</div>
+                                <div class="profile-stat-label">Комментариев</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="profileLikes">0</div>
+                                <div class="profile-stat-label">Лайков</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value" id="profileMember">-</div>
+                                <div class="profile-stat-label">На сайте</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Info -->
+                <div class="profile-section">
+                    <h2 class="profile-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Личные данные
+                    </h2>
+                    <form id="profileInfoForm">
+                        <div class="avatar-upload-wrapper">
+                            <div class="avatar-preview" id="avatarPreview">U</div>
+                            <div class="avatar-upload-actions">
+                                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+                                <button type="button" class="avatar-upload-btn" onclick="document.getElementById('avatarFileInput').click()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="margin-right: 6px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    Загрузить фото
+                                </button>
+                                <button type="button" class="avatar-upload-btn remove" id="removeAvatarBtn" style="display: none;">Удалить фото</button>
+                                <input type="hidden" id="avatarUrl" value="">
+                            </div>
+                        </div>
+                        <div class="profile-form-row">
+                            <div class="form-group">
+                                <label for="profileNameInput">Имя</label>
+                                <input type="text" id="profileNameInput" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profileEmailDisplay">Email</label>
+                                <input type="email" id="profileEmailDisplay" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileBio">О себе</label>
+                            <textarea id="profileBio" rows="3" placeholder="Расскажите немного о себе..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </form>
+                </div>
+
+                <!-- Change Password -->
+                <div class="profile-section">
+                    <h2 class="profile-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Изменить пароль
+                    </h2>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Текущий пароль</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <div class="profile-form-row">
+                            <div class="form-group">
+                                <label for="newPassword">Новый пароль</label>
+                                <input type="password" id="newPassword" minlength="6" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Подтвердите пароль</label>
+                                <input type="password" id="confirmNewPassword" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Изменить пароль</button>
+                    </form>
+                </div>
+
+                <!-- Notifications Settings -->
+                <div class="profile-section">
+                    <h2 class="profile-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        Уведомления
+                    </h2>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="notifyComments" style="width: 18px; height: 18px;">
+                            Уведомлять об ответах на мои комментарии
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="notifyNewsletter" style="width: 18px; height: 18px;">
+                            Получать рассылку о новых статьях
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="profile-section danger-zone">
+                    <h2 class="profile-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        Опасная зона
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
+                        Удаление аккаунта необратимо. Все ваши данные будут удалены.
+                    </p>
+                    <button type="button" class="btn btn-danger" id="deleteAccountBtn">Удалить аккаунт</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="../index.html" class="logo">
+                        <span class="logo-icon">G</span>
+                        <span class="logo-text">Gammy</span>
+                    </a>
+                    <p class="footer-desc">Современный блог о технологиях, дизайне и инновациях.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Навигация</h4>
+                    <nav class="footer-nav">
+                        <a href="../index.html">Главная</a>
+                        <a href="categories.html">Категории</a>
+                        <a href="about.html">О нас</a>
+                        <a href="contact.html">Контакты</a>
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Категории</h4>
+                    <nav class="footer-nav" id="footerCategories">
+                        <!-- Loaded dynamically -->
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Подписка</h4>
+                    <p class="footer-text">Получайте новые статьи на почту</p>
+                    <form class="subscribe-form" id="subscribeForm">
+                        <input type="email" placeholder="Ваш email" required>
+                        <button type="submit" class="btn btn-primary">OK</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy Blog. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        // Profile page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = Auth.getCurrentUser();
+
+            // Redirect if not logged in
+            if (!user) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // Load user data
+            loadProfileData();
+
+            // Footer categories
+            loadFooterCategories();
+
+            // Profile info form
+            document.getElementById('profileInfoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfileInfo();
+            });
+
+            // Change password form
+            document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                changePassword();
+            });
+
+            // Avatar file upload
+            document.getElementById('avatarFileInput').addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+
+                if (file.size > 2 * 1024 * 1024) {
+                    UI.showToast('Файл слишком большой (макс. 2MB)', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    document.getElementById('avatarUrl').value = imageData;
+                    updateAvatarPreview(imageData);
+                    document.getElementById('removeAvatarBtn').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Remove avatar
+            document.getElementById('removeAvatarBtn').addEventListener('click', function() {
+                document.getElementById('avatarUrl').value = '';
+                document.getElementById('avatarFileInput').value = '';
+                updateAvatarPreview('');
+                this.style.display = 'none';
+            });
+
+            function updateAvatarPreview(url) {
+                const preview = document.getElementById('avatarPreview');
+                if (url) {
+                    preview.innerHTML = `<img src="${url}" alt="Avatar" onerror="this.style.display='none'; this.parentElement.textContent='${user.name.charAt(0).toUpperCase()}'">`;
+                } else {
+                    preview.innerHTML = user.name.charAt(0).toUpperCase();
+                }
+            }
+
+            // Delete account
+            document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+                if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) {
+                    if (confirm('Это последнее предупреждение. Все ваши данные будут удалены навсегда.')) {
+                        deleteAccount();
+                    }
+                }
+            });
+
+            function loadProfileData() {
+                const users = DB.getUsers();
+                const fullUser = users.find(u => u.id === user.id);
+                const comments = DB.getComments().filter(c => c.userId === user.id);
+                const reactions = DB.getUserReactions();
+                const likesCount = Object.values(reactions).filter(r => r === 'like').length;
+
+                // Header
+                document.getElementById('profileAvatarLarge').innerHTML = fullUser.avatar
+                    ? `<img src="${fullUser.avatar}" alt="${user.name}">`
+                    : user.name.charAt(0).toUpperCase();
+                document.getElementById('profileName').textContent = user.name;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileComments').textContent = comments.length;
+                document.getElementById('profileLikes').textContent = likesCount;
+
+                // Calculate membership
+                const memberDays = Math.floor((new Date() - new Date(user.date)) / (1000 * 60 * 60 * 24));
+                document.getElementById('profileMember').textContent = memberDays + ' дн.';
+
+                // Form
+                document.getElementById('profileNameInput').value = user.name;
+                document.getElementById('profileEmailDisplay').value = user.email;
+                document.getElementById('profileBio').value = fullUser.bio || '';
+                document.getElementById('avatarUrl').value = fullUser.avatar || '';
+
+                // Avatar preview
+                const preview = document.getElementById('avatarPreview');
+                if (fullUser.avatar) {
+                    preview.innerHTML = `<img src="${fullUser.avatar}" alt="${user.name}">`;
+                    document.getElementById('removeAvatarBtn').style.display = 'block';
+                } else {
+                    preview.innerHTML = user.name.charAt(0).toUpperCase();
+                    document.getElementById('removeAvatarBtn').style.display = 'none';
+                }
+
+                // Notifications
+                document.getElementById('notifyComments').checked = fullUser.notifyComments !== false;
+                document.getElementById('notifyNewsletter').checked = fullUser.notifyNewsletter === true;
+            }
+
+            function saveProfileInfo() {
+                const users = DB.getUsers();
+                const userIndex = users.findIndex(u => u.id === user.id);
+
+                if (userIndex === -1) {
+                    UI.showToast('Ошибка: пользователь не найден', 'error');
+                    return;
+                }
+
+                const newName = document.getElementById('profileNameInput').value;
+                const newBio = document.getElementById('profileBio').value;
+                const newAvatar = document.getElementById('avatarUrl').value;
+                const notifyComments = document.getElementById('notifyComments').checked;
+                const notifyNewsletter = document.getElementById('notifyNewsletter').checked;
+
+                // Update user
+                users[userIndex].name = newName;
+                users[userIndex].bio = newBio;
+                users[userIndex].avatar = newAvatar;
+                users[userIndex].notifyComments = notifyComments;
+                users[userIndex].notifyNewsletter = notifyNewsletter;
+
+                localStorage.setItem('gammy_users', JSON.stringify(users));
+
+                // Update current user session
+                const currentUser = Auth.getCurrentUser();
+                currentUser.name = newName;
+                localStorage.setItem('gammy_current_user', JSON.stringify(currentUser));
+
+                UI.showToast('Профиль обновлён!');
+                loadProfileData();
+                App.updateAuthState();
+            }
+
+            function changePassword() {
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    UI.showToast('Пароли не совпадают', 'error');
+                    return;
+                }
+
+                const users = DB.getUsers();
+                const userIndex = users.findIndex(u => u.id === user.id);
+
+                if (userIndex === -1) {
+                    UI.showToast('Ошибка: пользователь не найден', 'error');
+                    return;
+                }
+
+                if (users[userIndex].password !== currentPassword) {
+                    UI.showToast('Неверный текущий пароль', 'error');
+                    return;
+                }
+
+                users[userIndex].password = newPassword;
+                localStorage.setItem('gammy_users', JSON.stringify(users));
+
+                UI.showToast('Пароль успешно изменён!');
+                document.getElementById('changePasswordForm').reset();
+            }
+
+            function deleteAccount() {
+                const users = DB.getUsers().filter(u => u.id !== user.id);
+                localStorage.setItem('gammy_users', JSON.stringify(users));
+
+                // Remove user's comments
+                const comments = DB.getComments().filter(c => c.userId !== user.id);
+                localStorage.setItem('gammy_comments', JSON.stringify(comments));
+
+                // Logout
+                Auth.logout();
+                UI.showToast('Аккаунт удалён');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1000);
+            }
+
+            function loadFooterCategories() {
+                const container = document.getElementById('footerCategories');
+                if (!container) return;
+
+                const categories = DB.getCategories();
+                container.innerHTML = categories.map(cat =>
+                    `<a href="categories.html?cat=${cat.slug}">${cat.name}</a>`
+                ).join('');
+            }
+        });
+    </script>
+</body>
+</html>

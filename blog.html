@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Современный блог с интересными статьями">
+    <meta name="keywords" content="блог, статьи, технологии">
+    <meta name="author" content="Gammy Blog">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Gammy Blog">
+    <meta property="og:description" content="Современный блог с интересными статьями">
+    <meta property="og:type" content="website">
+    <title>Gammy Blog - Главная</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Лента</a>
+                <a href="blog.html" class="nav-link active">Блог</a>
+                <a href="pages/categories.html" class="nav-link">Категории</a>
+                <a href="pages/about.html" class="nav-link">О нас</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn">
+                        <span id="userInitial">U</span>
+                    </button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="pages/profile.html" class="dropdown-item">Профиль</a>
+                        <a href="pages/admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="index.html" class="mobile-nav-link">Лента</a>
+            <a href="blog.html" class="mobile-nav-link active">Блог</a>
+            <a href="pages/categories.html" class="mobile-nav-link">Категории</a>
+            <a href="pages/about.html" class="mobile-nav-link">О нас</a>
+        </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Добро пожаловать в <span class="gradient-text">Gammy Blog</span></h1>
+                <p class="hero-subtitle">Исследуйте мир технологий, дизайна и инноваций вместе с нами</p>
+                <div class="hero-search glass">
+                    <input type="text" placeholder="Поиск статей..." id="searchInput" class="search-input">
+                    <button class="search-btn" id="searchBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg"></div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Categories Filter - Dynamic -->
+            <div class="categories-filter" id="categoriesFilter">
+                <button class="category-btn active" data-category="all">Все</button>
+                <!-- Categories loaded dynamically -->
+            </div>
+
+            <!-- Featured Categories Section -->
+            <div class="featured-categories" id="featuredCategories">
+                <!-- Featured category articles loaded dynamically -->
+            </div>
+
+            <!-- Articles Grid -->
+            <div class="articles-grid" id="articlesGrid">
+                <!-- Articles will be loaded here by JavaScript -->
+            </div>
+
+            <!-- Load More -->
+            <div class="load-more">
+                <button class="btn btn-outline" id="loadMoreBtn">Загрузить ещё</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">G</span>
+                        <span class="logo-text">Gammy</span>
+                    </a>
+                    <p class="footer-desc">Современный блог о технологиях, дизайне и инновациях.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="GitHub">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Telegram">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Навигация</h4>
+                    <nav class="footer-nav">
+                        <a href="index.html">Лента</a>
+                        <a href="blog.html">Блог</a>
+                        <a href="pages/categories.html">Категории</a>
+                        <a href="pages/about.html">О нас</a>
+                    </nav>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Категории</h4>
+                    <nav class="footer-nav" id="footerCategories">
+                        <!-- Categories loaded dynamically -->
+                    </nav>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Подписка</h4>
+                    <p class="footer-text">Получайте новые статьи на почту</p>
+                    <form class="subscribe-form" id="subscribeForm">
+                        <input type="email" placeholder="Ваш email" required>
+                        <button type="submit" class="btn btn-primary">OK</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy Blog. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+
+            <!-- Login Form -->
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

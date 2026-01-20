@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Категории статей блога Gammy">
+    <meta name="keywords" content="категории, gammy, статьи, блог">
+    <title>Категории - Gammy Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .categories-hero {
+            padding: 100px 0 40px;
+            text-align: center;
+        }
+        .categories-hero h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            margin-bottom: 16px;
+        }
+        .categories-hero p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .categories-content {
+            padding: 40px 0 60px;
+        }
+        .category-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        .category-card-page {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .category-card-page:hover {
+            transform: translateY(-3px);
+            background: var(--card-hover);
+        }
+        .category-card-page.active {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        .category-card-page-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .category-card-page-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        .category-card-page h3 {
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+        .category-card-page-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .filtered-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Лента</a>
+                <a href="../blog.html" class="nav-link">Блог</a>
+                <a href="categories.html" class="nav-link active">Категории</a>
+                <a href="about.html" class="nav-link">О нас</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn"><span id="userInitial">U</span></button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="profile.html" class="dropdown-item">Профиль</a>
+                        <a href="admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="../index.html" class="mobile-nav-link">Лента</a>
+            <a href="../blog.html" class="mobile-nav-link">Блог</a>
+            <a href="categories.html" class="mobile-nav-link active">Категории</a>
+            <a href="about.html" class="mobile-nav-link">О нас</a>
+        </nav>
+    </div>
+
+    <main>
+        <section class="categories-hero">
+            <div class="container">
+                <h1>Все <span class="gradient-text">категории</span></h1>
+                <p>Выберите интересующую вас тему и изучайте качественный контент</p>
+            </div>
+        </section>
+
+        <section class="categories-content">
+            <div class="container">
+                <div class="category-cards" id="categoryCards">
+                    <!-- Categories loaded dynamically -->
+                </div>
+
+                <h2 class="filtered-title" id="filteredTitle">Все статьи</h2>
+
+                <div class="articles-grid" id="articlesGrid">
+                    <!-- Articles will be loaded here -->
+                </div>
+
+                <div class="load-more">
+                    <button class="btn btn-outline" id="loadMoreBtn">Загрузить ещё</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="../index.html" class="logo">
+                        <span class="logo-icon">G</span>
+                        <span class="logo-text">Gammy</span>
+                    </a>
+                    <p class="footer-desc">Современный блог о технологиях, дизайне и инновациях.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Навигация</h4>
+                    <nav class="footer-nav">
+                        <a href="../index.html">Лента</a>
+                        <a href="../blog.html">Блог</a>
+                        <a href="categories.html">Категории</a>
+                        <a href="about.html">О нас</a>
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Категории</h4>
+                    <nav class="footer-nav">
+                        <a href="categories.html?cat=tech">Технологии</a>
+                        <a href="categories.html?cat=design">Дизайн</a>
+                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
+                        <a href="categories.html?cat=business">Бизнес</a>
+                    </nav>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-title">Подписка</h4>
+                    <p class="footer-text">Получайте новые статьи на почту</p>
+                    <form class="subscribe-form" id="subscribeForm">
+                        <input type="email" placeholder="Ваш email" required>
+                        <button type="submit" class="btn btn-primary">OK</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy Blog. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        // Categories page - dynamic loading
+        document.addEventListener('DOMContentLoaded', function() {
+            const categories = DB.getCategories();
+            const articles = DB.getPublishedArticles();
+
+            let currentCategory = null;
+            let displayedArticles = 0;
+            const articlesPerLoad = 6;
+
+            // Build category name map from DB
+            const categoryNames = {};
+            categories.forEach(cat => {
+                categoryNames[cat.slug] = cat.name;
+            });
+
+            // Get URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const catParam = urlParams.get('cat');
+
+            function getArticleWord(count) {
+                const lastDigit = count % 10;
+                const lastTwoDigits = count % 100;
+                if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'статей';
+                if (lastDigit === 1) return 'статья';
+                if (lastDigit >= 2 && lastDigit <= 4) return 'статьи';
+                return 'статей';
+            }
+
+            // Render category cards dynamically
+            function renderCategoryCards() {
+                const container = document.getElementById('categoryCards');
+                container.innerHTML = categories.map(cat => {
+                    const count = articles.filter(a => a.category === cat.slug).length;
+                    return `
+                        <div class="category-card-page" data-category="${cat.slug}">
+                            <div class="category-card-page-icon" style="background: ${cat.color};">
+                                ${cat.icon}
+                            </div>
+                            <h3>${cat.name}</h3>
+                            <div class="category-card-page-count">${count} ${getArticleWord(count)}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add click handlers
+                container.querySelectorAll('.category-card-page').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const category = card.dataset.category;
+                        if (currentCategory === category) {
+                            selectCategory(null);
+                        } else {
+                            selectCategory(category);
+                        }
+                    });
+                });
+            }
+
+            function selectCategory(category) {
+                // Update URL
+                const url = new URL(window.location);
+                if (category) {
+                    url.searchParams.set('cat', category);
+                } else {
+                    url.searchParams.delete('cat');
+                }
+                window.history.pushState({}, '', url);
+
+                // Update UI
+                document.querySelectorAll('.category-card-page').forEach(c => {
+                    c.classList.toggle('active', c.dataset.category === category);
+                });
+
+                currentCategory = category;
+                document.getElementById('filteredTitle').textContent = category
+                    ? `Статьи: ${categoryNames[category]}`
+                    : 'Все статьи';
+
+                displayedArticles = 0;
+                loadArticles(true);
+            }
+
+            function loadArticles(reset = false) {
+                const grid = document.getElementById('articlesGrid');
+                if (reset) {
+                    grid.innerHTML = '';
+                    displayedArticles = 0;
+                }
+
+                let filteredArticles = articles;
+                if (currentCategory) {
+                    filteredArticles = articles.filter(a => a.category === currentCategory);
+                }
+
+                const batch = filteredArticles.slice(displayedArticles, displayedArticles + articlesPerLoad);
+
+                batch.forEach(article => {
+                    grid.appendChild(createArticleCard(article));
+                });
+
+                displayedArticles += batch.length;
+
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (displayedArticles >= filteredArticles.length) {
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    loadMoreBtn.style.display = 'inline-flex';
+                }
+            }
+
+            function createArticleCard(article) {
+                const card = document.createElement('article');
+                card.className = 'article-card';
+                card.innerHTML = `
+                    <div class="article-image">
+                        <img src="${article.image}" alt="${article.title}" loading="lazy">
+                        <span class="article-category">${UI.getCategoryName(article.category)}</span>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">
+                            <a href="article.html?id=${article.id}">${article.title}</a>
+                        </h3>
+                        <p class="article-excerpt">${article.excerpt}</p>
+                        <div class="article-meta">
+                            <div class="article-author">
+                                <img src="${UI.getAvatarUrl(article.authorName)}" alt="${article.authorName}" class="author-avatar">
+                                <div class="author-info">
+                                    <span class="author-name">${article.authorName}</span>
+                                    <span class="article-date">${UI.formatDate(article.date)}</span>
+                                </div>
+                            </div>
+                            <div class="article-stats">
+                                <span class="stat-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    ${article.views}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return card;
+            }
+
+            // Load more button
+            document.getElementById('loadMoreBtn').addEventListener('click', () => {
+                loadArticles(false);
+            });
+
+            // Initialize
+            renderCategoryCards();
+
+            if (catParam && categoryNames[catParam]) {
+                selectCategory(catParam);
+            } else {
+                loadArticles(true);
+            }
+        });
+    </script>
+</body>
+</html>

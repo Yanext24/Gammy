@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Админ-панель - Gammy Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">На сайт</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <div class="user-menu" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn">
+                        <span id="userInitial">A</span>
+                    </button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Администратор</span>
+                            <span class="user-email" id="userEmail">admin@gammy.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="../index.html" class="dropdown-item">На сайт</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <nav class="admin-nav">
+                <a href="#dashboard" class="admin-nav-item active" data-section="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Дашборд
+                </a>
+                <a href="#articles" class="admin-nav-item" data-section="articles">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Статьи
+                </a>
+                <a href="#new-article" class="admin-nav-item" data-section="new-article">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Новая статья
+                </a>
+                <a href="#comments" class="admin-nav-item" data-section="comments">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Комментарии
+                </a>
+                <a href="#users" class="admin-nav-item" data-section="users">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Пользователи
+                </a>
+                <a href="#categories" class="admin-nav-item" data-section="categories">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Категории
+                </a>
+                <a href="#seo" class="admin-nav-item" data-section="seo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    SEO настройки
+                </a>
+                <a href="#site-settings" class="admin-nav-item" data-section="site-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Настройки сайта
+                </a>
+                <a href="#pages" class="admin-nav-item" data-section="pages">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Страницы
+                </a>
+                <a href="#media" class="admin-nav-item" data-section="media">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Медиа
+                </a>
+                <a href="#page-content" class="admin-nav-item" data-section="page-content">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Контент страниц
+                </a>
+                <a href="#feed-stats" class="admin-nav-item" data-section="feed-stats">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    Статистика ленты
+                </a>
+                <a href="#feed-settings" class="admin-nav-item" data-section="feed-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 11a9 9 0 0 1 9 9"></path>
+                        <path d="M4 4a16 16 0 0 1 16 16"></path>
+                        <circle cx="5" cy="19" r="1"></circle>
+                    </svg>
+                    Настройки ленты
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Dashboard Section -->
+            <section class="admin-section" id="dashboard">
+                <div class="admin-header">
+                    <h1 class="admin-title">Дашборд</h1>
+                </div>
+
+                <div class="admin-cards">
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="totalArticles">0</div>
+                        <div class="admin-card-label">Всего статей</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="totalViews">0</div>
+                        <div class="admin-card-label">Просмотров</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="totalComments">0</div>
+                        <div class="admin-card-label">Комментариев</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="totalUsers">0</div>
+                        <div class="admin-card-label">Пользователей</div>
+                    </div>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <h3 style="padding: 20px; font-size: 18px;">Последние статьи</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Статус</th>
+                                <th>Дата</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentArticlesTable">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Articles Section -->
+            <section class="admin-section hidden" id="articles">
+                <div class="admin-header">
+                    <h1 class="admin-title">Статьи</h1>
+                    <button class="btn btn-primary" onclick="showSection('new-article')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Создать статью
+                    </button>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Статус</th>
+                                <th>Просмотры</th>
+                                <th>Дата</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="articlesTable">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- New Article Section -->
+            <section class="admin-section hidden" id="new-article">
+                <div class="admin-header">
+                    <h1 class="admin-title" id="editorTitle">Новая статья</h1>
+                </div>
+
+                <form id="articleForm">
+                    <input type="hidden" id="articleId">
+
+                    <div class="form-group">
+                        <label for="articleTitleInput">Заголовок статьи</label>
+                        <input type="text" id="articleTitleInput" placeholder="Введите заголовок..." required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="articleCategorySelect">Категория</label>
+                            <select id="articleCategorySelect" required>
+                                <option value="">Выберите категорию</option>
+                                <!-- Categories loaded dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="articleStatus">Статус</label>
+                            <select id="articleStatus">
+                                <option value="draft">Черновик</option>
+                                <option value="published">Опубликовано</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Изображение статьи</label>
+                        <div class="image-input-wrapper">
+                            <div class="image-input-tabs">
+                                <button type="button" class="image-tab active" data-mode="url" onclick="Admin.switchImageMode('article', 'url')">По ссылке</button>
+                                <button type="button" class="image-tab" data-mode="upload" onclick="Admin.switchImageMode('article', 'upload')">Загрузить</button>
+                                <button type="button" class="image-tab" data-mode="media" onclick="Admin.switchImageMode('article', 'media')">Из медиа</button>
+                            </div>
+                            <div class="image-input-content">
+                                <div class="image-mode-panel active" id="article-url-panel">
+                                    <input type="url" id="articleImage" placeholder="https://example.com/image.jpg">
+                                </div>
+                                <div class="image-mode-panel" id="article-upload-panel">
+                                    <div class="image-drop-zone" id="articleImageDropZone">
+                                        <input type="file" id="articleImageFile" accept="image/*" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <span>Нажмите или перетащите изображение</span>
+                                        <small>JPG, PNG, GIF, WebP (макс. 5MB)</small>
+                                    </div>
+                                </div>
+                                <div class="image-mode-panel" id="article-media-panel">
+                                    <div class="media-picker" id="articleMediaPicker">
+                                        <!-- Images from media library will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="image-preview-box" id="articleImagePreview" style="display: none;">
+                                <img src="" alt="Preview" id="articleImagePreviewImg">
+                                <button type="button" class="image-preview-remove" onclick="Admin.removeArticleImage()">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="articleExcerpt">Краткое описание</label>
+                        <textarea id="articleExcerpt" placeholder="Краткое описание статьи для превью..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Содержание статьи</label>
+                        <div class="editor-container">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" data-command="bold" title="Жирный">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="italic" title="Курсив">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="underline" title="Подчёркнутый">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="strikeThrough" title="Зачёркнутый">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.9-2.7 0-5.3.7-5.3 3.6 0 1.5 1.8 3.3 3.6 3.9h.2H4m16 0H9.5"></path><path d="M6.7 19.1c2.3.6 4.4 1 6.2.9 2.7 0 5.3-.7 5.3-3.6 0-1.5-1.8-3.3-3.6-3.9h-.2"></path></svg>
+                                </button>
+                                <span class="toolbar-divider"></span>
+                                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="H2" title="Заголовок H2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8"></path><path d="M4 18V6"></path><path d="M12 18V6"></path><path d="M17 12a2 2 0 1 1 4 0c0 .591-.417 1.318-.816 1.858L17 18h4"></path></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="H3" title="Заголовок H3">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8"></path><path d="M4 18V6"></path><path d="M12 18V6"></path><path d="M17.5 10.5c1.7-1 3.5 0 3.5 1.5a2 2 0 0 1-2 2"></path><path d="M17 17.5c2 1.5 4 .3 4-1.5a2 2 0 0 0-2-2"></path></svg>
+                                </button>
+                                <span class="toolbar-divider"></span>
+                                <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Маркированный список">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Нумерованный список">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+                                </button>
+                                <span class="toolbar-divider"></span>
+                                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="BLOCKQUOTE" title="Цитата">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3"></path></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="createLink" title="Ссылка">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" data-command="insertImage" title="Изображение">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                </button>
+                            </div>
+                            <div class="editor-content" id="editorContent" contenteditable="true" data-placeholder="Начните писать статью..."></div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="seo-section">
+                        <h3 class="seo-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            SEO настройки
+                        </h3>
+
+                        <div class="form-group">
+                            <label for="seoTitle">Meta Title (до 60 символов)</label>
+                            <input type="text" id="seoTitle" maxlength="60" placeholder="SEO заголовок для поисковиков">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seoDescription">Meta Description (до 160 символов)</label>
+                            <textarea id="seoDescription" maxlength="160" rows="2" placeholder="SEO описание для поисковиков"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seoKeywords">Keywords (через запятую)</label>
+                            <input type="text" id="seoKeywords" placeholder="ключевое слово 1, ключевое слово 2">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seoSlug">URL Slug</label>
+                            <input type="text" id="seoSlug" placeholder="url-statyi">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-primary">Сохранить статью</button>
+                        <button type="button" class="btn btn-outline" onclick="previewArticle()">Предпросмотр</button>
+                        <button type="button" class="btn btn-ghost" onclick="resetArticleForm()">Отмена</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Comments Section -->
+            <section class="admin-section hidden" id="comments">
+                <div class="admin-header">
+                    <h1 class="admin-title">Комментарии</h1>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Автор</th>
+                                <th>Комментарий</th>
+                                <th>Статья</th>
+                                <th>Дата</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commentsTable">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section class="admin-section hidden" id="users">
+                <div class="admin-header">
+                    <h1 class="admin-title">Пользователи</h1>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th>Дата регистрации</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section class="admin-section hidden" id="categories">
+                <div class="admin-header">
+                    <h1 class="admin-title">Категории</h1>
+                    <button class="btn btn-primary" onclick="Admin.showCategoryModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Добавить категорию
+                    </button>
+                </div>
+
+                <div class="category-grid" id="categoryGrid">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Category Modal -->
+            <div class="modal" id="categoryModal">
+                <div class="modal-overlay" onclick="Admin.closeCategoryModal()"></div>
+                <div class="modal-content glass">
+                    <button class="modal-close" onclick="Admin.closeCategoryModal()">&times;</button>
+                    <h2 class="modal-title" id="categoryModalTitle">Добавить категорию</h2>
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId">
+                        <div class="form-group">
+                            <label for="categoryName">Название категории</label>
+                            <input type="text" id="categoryName" placeholder="Технологии" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categorySlug">Slug (URL)</label>
+                            <input type="text" id="categorySlug" placeholder="tech" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryColor">Цвет</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="color" id="categoryColor" value="#6366f1" style="width: 50px; height: 36px; padding: 0; border: none; cursor: pointer;">
+                                <input type="text" id="categoryColorText" value="#6366f1" style="flex: 1;" placeholder="#6366f1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryIcon">SVG иконка</label>
+                            <textarea id="categoryIcon" rows="4" placeholder='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">...</svg>'></textarea>
+                            <small style="color: var(--text-muted); display: block; margin-top: 6px;">Вставьте SVG код иконки. Используйте viewBox="0 0 24 24"</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Предпросмотр иконки</label>
+                            <div id="iconPreview" style="width: 48px; height: 48px; background: var(--accent-gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="categoryShowOnHome" style="width: 18px; height: 18px;">
+                                Показывать на главной странице
+                            </label>
+                            <small style="color: var(--text-muted); display: block; margin-top: 4px;">Последняя статья из категории будет отображаться на главной</small>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <button type="button" class="btn btn-ghost" onclick="Admin.closeCategoryModal()">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SEO Section -->
+            <section class="admin-section hidden" id="seo">
+                <div class="admin-header">
+                    <h1 class="admin-title">SEO настройки сайта</h1>
+                </div>
+
+                <form id="seoSettingsForm">
+                    <div class="seo-section">
+                        <h3 class="seo-title">Глобальные настройки</h3>
+
+                        <div class="form-group">
+                            <label for="siteName">Название сайта</label>
+                            <input type="text" id="siteName" placeholder="Gammy Blog">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="siteDescription">Описание сайта</label>
+                            <textarea id="siteDescription" rows="3" placeholder="Описание вашего блога для поисковых систем"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="siteKeywords">Ключевые слова сайта</label>
+                            <input type="text" id="siteKeywords" placeholder="блог, технологии, дизайн">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="siteAuthor">Автор сайта</label>
+                            <input type="text" id="siteAuthor" placeholder="Gammy Blog Team">
+                        </div>
+                    </div>
+
+                    <div class="seo-section">
+                        <h3 class="seo-title">Open Graph (для соцсетей)</h3>
+
+                        <div class="form-group">
+                            <label for="ogImage">OG Image URL</label>
+                            <input type="url" id="ogImage" placeholder="https://example.com/og-image.jpg">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ogType">OG Type</label>
+                            <select id="ogType">
+                                <option value="website">Website</option>
+                                <option value="blog">Blog</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="seo-section">
+                        <h3 class="seo-title">Robots & Sitemap</h3>
+
+                        <div class="form-group">
+                            <label for="robotsTxt">robots.txt</label>
+                            <textarea id="robotsTxt" rows="5" placeholder="User-agent: *&#10;Allow: /"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="generateSitemap" checked>
+                                Автоматически генерировать sitemap.xml
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+                </form>
+            </section>
+
+            <!-- Site Settings Section -->
+            <section class="admin-section hidden" id="site-settings">
+                <div class="admin-header">
+                    <h1 class="admin-title">Настройки сайта</h1>
+                </div>
+
+                <form id="siteSettingsForm">
+                    <!-- Branding -->
+                    <div class="seo-section">
+                        <h3 class="seo-title">Брендинг</h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="brandSiteName">Название сайта</label>
+                                <input type="text" id="brandSiteName" placeholder="Gammy">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="brandSiteTagline">Слоган</label>
+                                <input type="text" id="brandSiteTagline" placeholder="Blog">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Тип логотипа</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="logoType" value="text" checked> Текст/Иконка
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="logoType" value="image"> Изображение
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="logoTextSettings">
+                            <div class="form-group">
+                                <label for="brandLogoIcon">Символ логотипа (1 буква)</label>
+                                <input type="text" id="brandLogoIcon" placeholder="G" maxlength="2" style="width: 60px; text-align: center; font-size: 18px; font-weight: bold;">
+                            </div>
+                        </div>
+
+                        <div id="logoImageSettings" style="display: none;">
+                            <div class="form-group">
+                                <label>Изображение логотипа</label>
+                                <div class="image-upload-area" id="logoUploadArea">
+                                    <input type="file" id="logoImageInput" accept="image/*" style="display: none;">
+                                    <div class="upload-placeholder" onclick="document.getElementById('logoImageInput').click()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <span>Нажмите или перетащите изображение</span>
+                                    </div>
+                                    <div class="upload-preview" id="logoPreview" style="display: none;">
+                                        <img src="" alt="Logo preview" id="logoPreviewImg">
+                                        <button type="button" class="remove-image" onclick="Admin.removeLogo()">&times;</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Предпросмотр логотипа</label>
+                            <div id="brandLogoPreview" style="display: flex; align-items: center; gap: 10px; padding: 16px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="width: 36px; height: 36px; background: var(--accent-gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;" id="logoPreviewIcon">G</div>
+                                <span style="font-size: 18px; font-weight: 600;" id="logoPreviewText">Gammy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Colors -->
+                    <div class="seo-section">
+                        <h3 class="seo-title">Цветовая тема</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">Настройте градиент акцентного цвета сайта</p>
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                            <div class="form-group">
+                                <label for="accentColor1">Цвет 1 (начало)</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="color" id="accentColor1" value="#6366f1" style="width: 50px; height: 36px; padding: 0; border: none; cursor: pointer;">
+                                    <input type="text" id="accentColor1Text" value="#6366f1" style="flex: 1;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="accentColor2">Цвет 2 (середина)</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="color" id="accentColor2" value="#8b5cf6" style="width: 50px; height: 36px; padding: 0; border: none; cursor: pointer;">
+                                    <input type="text" id="accentColor2Text" value="#8b5cf6" style="flex: 1;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="accentColor3">Цвет 3 (конец)</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="color" id="accentColor3" value="#a855f7" style="width: 50px; height: 36px; padding: 0; border: none; cursor: pointer;">
+                                    <input type="text" id="accentColor3Text" value="#a855f7" style="flex: 1;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Предпросмотр градиента</label>
+                            <div id="gradientPreview" style="height: 60px; border-radius: 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('purple')">Фиолетовый</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('blue')">Синий</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('green')">Зелёный</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('orange')">Оранжевый</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('pink')">Розовый</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="Admin.setThemePreset('red')">Красный</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+                </form>
+            </section>
+
+            <!-- Pages Section -->
+            <section class="admin-section hidden" id="pages">
+                <div class="admin-header">
+                    <h1 class="admin-title">Страницы</h1>
+                    <button class="btn btn-primary" onclick="Admin.showPageModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Добавить страницу
+                    </button>
+                </div>
+
+                <div class="pages-grid" id="pagesGrid">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Page Modal -->
+            <div class="modal" id="pageModal">
+                <div class="modal-overlay" onclick="Admin.closePageModal()"></div>
+                <div class="modal-content glass" style="max-width: 800px;">
+                    <button class="modal-close" onclick="Admin.closePageModal()">&times;</button>
+                    <h2 class="modal-title" id="pageModalTitle">Добавить страницу</h2>
+                    <form id="pageForm">
+                        <input type="hidden" id="pageId">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="pageTitle">Название страницы</label>
+                                <input type="text" id="pageTitle" placeholder="О нас" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pageSlug">URL (slug)</label>
+                                <input type="text" id="pageSlug" placeholder="about" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pageContent">Содержимое (HTML)</label>
+                            <textarea id="pageContent" rows="12" placeholder="<h2>Заголовок</h2><p>Текст страницы...</p>"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="pageShowInHeader" style="width: 18px; height: 18px;">
+                                Показывать в шапке
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="pageShowInFooter" style="width: 18px; height: 18px;">
+                                Показывать в подвале
+                            </label>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <button type="button" class="btn btn-ghost" onclick="Admin.closePageModal()">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Media Section -->
+            <section class="admin-section hidden" id="media">
+                <div class="admin-header">
+                    <h1 class="admin-title">Медиа библиотека</h1>
+                </div>
+
+                <div class="media-upload-zone" id="mediaUploadZone">
+                    <input type="file" id="mediaFileInput" accept="image/*" multiple style="display: none;">
+                    <div class="upload-zone-content" onclick="document.getElementById('mediaFileInput').click()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <h3>Перетащите изображения сюда</h3>
+                        <p>или нажмите для выбора файлов</p>
+                        <small>Поддерживаются: JPG, PNG, GIF, WebP (макс. 5MB)</small>
+                    </div>
+                </div>
+
+                <div class="media-grid" id="mediaGrid">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Page Content Section -->
+            <section class="admin-section hidden" id="page-content">
+                <div class="admin-header">
+                    <h1 class="admin-title">Контент страниц</h1>
+                </div>
+
+                <form id="pageContentForm">
+                    <!-- Page Tabs -->
+                    <div class="page-content-tabs">
+                        <button type="button" class="page-tab active" data-page="home">Главная</button>
+                        <button type="button" class="page-tab" data-page="about">О нас</button>
+                        <button type="button" class="page-tab" data-page="contact">Контакты</button>
+                        <button type="button" class="page-tab" data-page="categories">Категории</button>
+                    </div>
+
+                    <!-- Home Page Content -->
+                    <div class="page-content-panel active" id="panel-home">
+                        <div class="seo-section">
+                            <h3 class="seo-title">Контент главной страницы</h3>
+
+                            <div class="form-group">
+                                <label for="homeHeroTitle">Заголовок (до выделения)</label>
+                                <input type="text" id="homeHeroTitle" placeholder="Добро пожаловать в">
+                            </div>
+                            <div class="form-group">
+                                <label for="homeHeroTitleHighlight">Выделенный текст (градиент)</label>
+                                <input type="text" id="homeHeroTitleHighlight" placeholder="Gammy Blog">
+                            </div>
+                            <div class="form-group">
+                                <label for="homeHeroSubtitle">Подзаголовок</label>
+                                <textarea id="homeHeroSubtitle" rows="3" placeholder="Описание блога..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">SEO - Главная</h3>
+                            <div class="form-group">
+                                <label for="homeSeoTitle">Meta Title</label>
+                                <input type="text" id="homeSeoTitle" placeholder="Gammy Blog - Технологии, нейросети, игры">
+                            </div>
+                            <div class="form-group">
+                                <label for="homeSeoDescription">Meta Description</label>
+                                <textarea id="homeSeoDescription" rows="2" placeholder="Описание для поисковиков..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="homeSeoKeywords">Keywords</label>
+                                <input type="text" id="homeSeoKeywords" placeholder="блог, технологии, нейросети">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Page Content -->
+                    <div class="page-content-panel" id="panel-about">
+                        <div class="seo-section">
+                            <h3 class="seo-title">Контент страницы "О нас"</h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="aboutTitle">Заголовок</label>
+                                    <input type="text" id="aboutTitle" placeholder="О нас">
+                                </div>
+                                <div class="form-group">
+                                    <label for="aboutTitleHighlight">Выделенный текст</label>
+                                    <input type="text" id="aboutTitleHighlight" placeholder="Gammy">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="aboutSubtitle">Подзаголовок</label>
+                                <input type="text" id="aboutSubtitle" placeholder="Узнайте больше о нашей команде">
+                            </div>
+                            <div class="form-group">
+                                <label for="aboutContent">Содержимое (HTML)</label>
+                                <textarea id="aboutContent" rows="10" placeholder="<h2>О блоге</h2><p>Текст...</p>"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">SEO - О нас</h3>
+                            <div class="form-group">
+                                <label for="aboutSeoTitle">Meta Title</label>
+                                <input type="text" id="aboutSeoTitle" placeholder="О нас - Gammy Blog">
+                            </div>
+                            <div class="form-group">
+                                <label for="aboutSeoDescription">Meta Description</label>
+                                <textarea id="aboutSeoDescription" rows="2" placeholder="Описание страницы..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="aboutSeoKeywords">Keywords</label>
+                                <input type="text" id="aboutSeoKeywords" placeholder="о нас, команда, миссия">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Page Content -->
+                    <div class="page-content-panel" id="panel-contact">
+                        <div class="seo-section">
+                            <h3 class="seo-title">Контент страницы "Контакты"</h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="contactTitle">Заголовок</label>
+                                    <input type="text" id="contactTitle" placeholder="Свяжитесь с">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactTitleHighlight">Выделенный текст</label>
+                                    <input type="text" id="contactTitleHighlight" placeholder="нами">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactSubtitle">Подзаголовок</label>
+                                <input type="text" id="contactSubtitle" placeholder="Мы всегда рады обратной связи">
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Контактная информация</h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="contactEmail">Email</label>
+                                    <input type="email" id="contactEmail" placeholder="hello@gammy.blog">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactPhone">Телефон</label>
+                                    <input type="text" id="contactPhone" placeholder="+7 (999) 123-45-67">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactAddress">Адрес</label>
+                                <input type="text" id="contactAddress" placeholder="Москва, Россия">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactResponseTime">Время ответа</label>
+                                <input type="text" id="contactResponseTime" placeholder="Обычно отвечаем в течение 24 часов">
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Социальные сети</h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="socialTelegram">Telegram</label>
+                                    <input type="text" id="socialTelegram" placeholder="@gammy_blog или https://t.me/...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="socialVk">ВКонтакте</label>
+                                    <input type="text" id="socialVk" placeholder="https://vk.com/...">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="socialYoutube">YouTube</label>
+                                    <input type="text" id="socialYoutube" placeholder="https://youtube.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="socialGithub">GitHub</label>
+                                    <input type="text" id="socialGithub" placeholder="https://github.com/...">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="socialTwitter">Twitter / X</label>
+                                    <input type="text" id="socialTwitter" placeholder="https://twitter.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="socialInstagram">Instagram</label>
+                                    <input type="text" id="socialInstagram" placeholder="https://instagram.com/...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">SEO - Контакты</h3>
+                            <div class="form-group">
+                                <label for="contactSeoTitle">Meta Title</label>
+                                <input type="text" id="contactSeoTitle" placeholder="Контакты - Gammy Blog">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactSeoDescription">Meta Description</label>
+                                <textarea id="contactSeoDescription" rows="2" placeholder="Описание страницы..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactSeoKeywords">Keywords</label>
+                                <input type="text" id="contactSeoKeywords" placeholder="контакты, связь, email">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Page Content -->
+                    <div class="page-content-panel" id="panel-categories">
+                        <div class="seo-section">
+                            <h3 class="seo-title">Контент страницы "Категории"</h3>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="categoriesTitle">Заголовок</label>
+                                    <input type="text" id="categoriesTitle" placeholder="Все">
+                                </div>
+                                <div class="form-group">
+                                    <label for="categoriesTitleHighlight">Выделенный текст</label>
+                                    <input type="text" id="categoriesTitleHighlight" placeholder="категории">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoriesSubtitle">Подзаголовок</label>
+                                <input type="text" id="categoriesSubtitle" placeholder="Выберите интересующую вас тему">
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">SEO - Категории</h3>
+                            <div class="form-group">
+                                <label for="categoriesSeoTitle">Meta Title</label>
+                                <input type="text" id="categoriesSeoTitle" placeholder="Категории - Gammy Blog">
+                            </div>
+                            <div class="form-group">
+                                <label for="categoriesSeoDescription">Meta Description</label>
+                                <textarea id="categoriesSeoDescription" rows="2" placeholder="Описание страницы..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoriesSeoKeywords">Keywords</label>
+                                <input type="text" id="categoriesSeoKeywords" placeholder="категории, статьи, блог">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить контент</button>
+                </form>
+            </section>
+
+            <!-- Feed Stats Section -->
+            <section class="admin-section hidden" id="feed-stats">
+                <div class="admin-header">
+                    <h1 class="admin-title">Статистика ленты</h1>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="admin-cards">
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="feedTotalPosts">0</div>
+                        <div class="admin-card-label">Всего постов</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="feedTotalViews">0</div>
+                        <div class="admin-card-label">Просмотров</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="feedTotalLikes">0</div>
+                        <div class="admin-card-label">Лайков</div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="admin-card-value" id="feedTotalComments">0</div>
+                        <div class="admin-card-label">Комментариев</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="stats-charts-grid">
+                    <div class="stats-chart-card">
+                        <h3 class="stats-chart-title">Посты за последние 7 дней</h3>
+                        <div class="stats-chart" id="postsChart">
+                            <canvas id="postsChartCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="stats-chart-card">
+                        <h3 class="stats-chart-title">Просмотры за последние 7 дней</h3>
+                        <div class="stats-chart" id="viewsChart">
+                            <canvas id="viewsChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Posts -->
+                <div class="admin-table-wrapper" style="margin-top: 24px;">
+                    <h3 style="padding: 20px; font-size: 18px;">Популярные посты</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Автор</th>
+                                <th>Содержание</th>
+                                <th>Просмотры</th>
+                                <th>Лайки</th>
+                                <th>Комментарии</th>
+                                <th>Дата</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topPostsTable">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Tags -->
+                <div class="stats-tags-section" style="margin-top: 24px;">
+                    <h3 style="font-size: 18px; margin-bottom: 16px;">Популярные теги</h3>
+                    <div class="stats-tags-list" id="statsTagsList">
+                        <!-- Tags will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feed Settings Section -->
+            <section class="admin-section hidden" id="feed-settings">
+                <div class="admin-header">
+                    <h1 class="admin-title">Настройки ленты</h1>
+                </div>
+
+                <form id="feedSettingsForm">
+                    <div class="seo-section">
+                        <h3 class="seo-title">Основные настройки</h3>
+
+                        <div class="form-group">
+                            <label for="feedPostsPerPage">Постов на странице</label>
+                            <input type="number" id="feedPostsPerPage" min="5" max="50" value="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedAllowAnonymous" style="width: 18px; height: 18px;">
+                                Разрешить анонимные посты (без регистрации)
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedAllowImages" checked style="width: 18px; height: 18px;">
+                                Разрешить прикреплять изображения
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedAllowFiles" checked style="width: 18px; height: 18px;">
+                                Разрешить прикреплять файлы
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="feedMaxContentLength">Максимальная длина поста (символов)</label>
+                            <input type="number" id="feedMaxContentLength" min="100" max="10000" value="2000">
+                        </div>
+                    </div>
+
+                    <div class="seo-section">
+                        <h3 class="seo-title">Модерация</h3>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedModerateNew" style="width: 18px; height: 18px;">
+                                Модерировать новые посты перед публикацией
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedModerateComments" style="width: 18px; height: 18px;">
+                                Модерировать комментарии
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="feedBannedWords">Запрещённые слова (через запятую)</label>
+                            <textarea id="feedBannedWords" rows="3" placeholder="спам, реклама, ..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="seo-section">
+                        <h3 class="seo-title">Отображение</h3>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedShowTopTags" checked style="width: 18px; height: 18px;">
+                                Показывать популярные теги в сайдбаре
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="feedShowTopAuthors" checked style="width: 18px; height: 18px;">
+                                Показывать активных авторов в сайдбаре
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="feedSidebarTagsCount">Количество тегов в сайдбаре</label>
+                            <input type="number" id="feedSidebarTagsCount" min="5" max="30" value="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="feedSidebarAuthorsCount">Количество авторов в сайдбаре</label>
+                            <input type="number" id="feedSidebarAuthorsCount" min="3" max="10" value="5">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

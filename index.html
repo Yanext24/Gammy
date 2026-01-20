@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Лента постов - Gammy">
+    <title>Лента - Gammy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header glass">
+        <div class="container header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">G</span>
+                <span class="logo-text">Gammy</span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link active">Лента</a>
+                <a href="blog.html" class="nav-link">Блог</a>
+                <a href="pages/categories.html" class="nav-link">Категории</a>
+                <a href="pages/about.html" class="nav-link">О нас</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Войти</button>
+                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatarBtn"><span id="userInitial">U</span></button>
+                    <div class="user-dropdown glass" id="userDropdown">
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Пользователь</span>
+                            <span class="user-email" id="userEmail">user@email.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="pages/profile.html" class="dropdown-item">Профиль</a>
+                        <a href="pages/admin.html" class="dropdown-item admin-only hidden" id="adminLink">Админ-панель</a>
+                        <button class="dropdown-item" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu glass" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="index.html" class="mobile-nav-link active">Лента</a>
+            <a href="blog.html" class="mobile-nav-link">Блог</a>
+            <a href="pages/categories.html" class="mobile-nav-link">Категории</a>
+            <a href="pages/about.html" class="mobile-nav-link">О нас</a>
+        </nav>
+    </div>
+
+    <!-- Feed Page -->
+    <main class="feed-page">
+        <div class="container">
+            <div class="feed-layout">
+                <!-- Main Feed Column -->
+                <div class="feed-main">
+                    <!-- Create Post Form -->
+                    <div class="create-post-card glass" id="createPostCard">
+                        <div class="create-post-header">
+                            <div class="create-post-avatar" id="createPostAvatar">U</div>
+                            <button class="create-post-trigger" id="createPostTrigger">Что нового?</button>
+                        </div>
+                        <div class="create-post-form hidden" id="createPostForm">
+                            <textarea class="create-post-textarea" id="postContent" placeholder="Напишите что-нибудь..."></textarea>
+
+                            <!-- Attachments Preview -->
+                            <div class="post-attachments-preview hidden" id="attachmentsPreview">
+                                <!-- Previews will be added here -->
+                            </div>
+
+                            <!-- Tags Input -->
+                            <div class="post-tags-input">
+                                <input type="text" id="postTagsInput" placeholder="Добавьте теги через запятую...">
+                            </div>
+
+                            <div class="create-post-actions">
+                                <div class="create-post-attachments">
+                                    <input type="file" id="postImageInput" accept="image/*" multiple style="display: none;">
+                                    <button type="button" class="attach-btn" onclick="document.getElementById('postImageInput').click()" title="Добавить изображение">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                    </button>
+                                    <input type="file" id="postFileInput" style="display: none;">
+                                    <button type="button" class="attach-btn" onclick="document.getElementById('postFileInput').click()" title="Прикрепить файл">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="create-post-submit">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="cancelPostBtn">Отмена</button>
+                                    <button type="button" class="btn btn-primary btn-sm" id="submitPostBtn">Опубликовать</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div class="posts-feed" id="postsFeed">
+                        <!-- Posts will be loaded here -->
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="feed-load-more hidden" id="feedLoadMore">
+                        <button class="btn btn-outline" id="loadMorePostsBtn">Загрузить ещё</button>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <aside class="feed-sidebar">
+                    <!-- Search -->
+                    <div class="sidebar-card glass">
+                        <div class="sidebar-search">
+                            <input type="text" id="feedSearchInput" placeholder="Поиск постов...">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="M21 21l-4.35-4.35"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Top Tags -->
+                    <div class="sidebar-card glass">
+                        <h3 class="sidebar-title">Популярные теги</h3>
+                        <div class="tags-cloud" id="topTags">
+                            <!-- Tags will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Top Authors -->
+                    <div class="sidebar-card glass">
+                        <h3 class="sidebar-title">Активные авторы</h3>
+                        <div class="top-authors" id="topAuthors">
+                            <!-- Authors will be loaded here -->
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Gammy. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content glass">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="auth-form" id="loginForm">
+                <h2 class="modal-title">Вход</h2>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                </form>
+                <p class="auth-switch">Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+            </div>
+            <div class="auth-form hidden" id="registerForm">
+                <h2 class="modal-title">Регистрация</h2>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Имя</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+                </form>
+                <p class="auth-switch">Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/feed.js"></script>
+</body>
+</html>
