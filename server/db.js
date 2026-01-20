@@ -6,7 +6,9 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, '..', 'data', 'gammy.db');
+// Use /data for Render persistent disk, fallback to local data folder
+const dataDir = process.env.NODE_ENV === 'production' ? '/data' : path.join(__dirname, '..', 'data');
+const dbPath = path.join(dataDir, 'gammy.db');
 
 let db;
 
