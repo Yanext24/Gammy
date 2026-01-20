@@ -760,9 +760,26 @@ a {
     visibility: visible;
 }
 
+/* Modal inside modal-overlay (used by app.js Modals) */
+.modal-overlay .modal {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    visibility: visible;
+    padding: 0;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+}
+
 .modal-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
 }
