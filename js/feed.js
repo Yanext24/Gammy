@@ -19,7 +19,7 @@ const Feed = {
 
     // Load posts from API
     async loadPosts(append = false) {
-        const container = document.getElementById('feedPosts');
+        const container = document.getElementById('postsFeed') || document.getElementById('feedPosts');
         if (!container) return;
 
         if (!append) {
@@ -156,11 +156,11 @@ const Feed = {
     },
 
     updateLoadMoreButton() {
-        let loadMoreBtn = document.getElementById('loadMoreBtn');
+        let loadMoreBtn = document.getElementById('loadMoreBtn') || document.getElementById('loadMorePostsBtn');
 
         if (this.hasMore) {
             if (!loadMoreBtn) {
-                const container = document.getElementById('feedPosts');
+                const container = document.getElementById('postsFeed') || document.getElementById('feedPosts');
                 if (container) {
                     container.insertAdjacentHTML('afterend', `
                         <button id="loadMoreBtn" class="btn btn-ghost" style="width:100%;margin-top:20px;" onclick="Feed.loadMore()">
@@ -186,8 +186,6 @@ const Feed = {
         const imageBtn = document.getElementById('addImageBtn');
         const imageInput = document.getElementById('postImageInput');
 
-        if (!form) return;
-
         this.pendingImages = [];
 
         // Show/hide form based on auth
@@ -195,6 +193,43 @@ const Feed = {
         if (createPostCard) {
             if (Auth.isLoggedIn()) {
                 createPostCard.style.display = 'block';
+
+                // Initialize trigger button if exists
+                const trigger = document.getElementById('createPostTrigger');
+                const formEl = document.getElementById('createPostForm');
+                const cancelBtn = document.getElementById('cancelPostBtn');
+                const submitBtn = document.getElementById('submitPostBtn');
+
+                if (trigger && formEl) {
+                    trigger.addEventListener('click', () => {
+                        formEl.classList.remove('hidden');
+                        trigger.parentElement.style.display = 'none';
+                    });
+                }
+
+                if (cancelBtn && formEl) {
+                    cancelBtn.addEventListener('click', () => {
+                        formEl.classList.add('hidden');
+                        if (trigger) trigger.parentElement.style.display = 'flex';
+                        textarea.value = '';
+                        this.pendingImages = [];
+                        const preview = document.getElementById('attachmentsPreview');
+                        if (preview) preview.innerHTML = '';
+                    });
+                }
+
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', async () => {
+                        await this.submitPost();
+                    });
+                }
+
+                // Update avatar
+                const user = Auth.getCurrentUser();
+                const avatarEl = document.getElementById('createPostAvatar');
+                if (avatarEl && user) {
+                    avatarEl.textContent = user.name.charAt(0).toUpperCase();
+                }
             } else {
                 createPostCard.innerHTML = `
                     <div style="text-align:center;padding:20px;">
@@ -206,16 +241,20 @@ const Feed = {
         }
 
         // Image upload
-        if (imageBtn && imageInput) {
-            imageBtn.addEventListener('click', () => imageInput.click());
+        if (imageInput) {
             imageInput.addEventListener('change', (e) => this.handleImageUpload(e.target.files));
         }
+        if (imageBtn) {
+            imageBtn.addEventListener('click', () => imageInput && imageInput.click());
+        }
 
-        // Form submit
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.submitPost();
-        });
+        // Form submit (for old structure)
+        if (form && form.tagName === 'FORM') {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.submitPost();
+            });
+        }
 
         // Drag & drop
         if (textarea) {
@@ -237,8 +276,9 @@ const Feed = {
     },
 
     handleImageUpload(files) {
-        const preview = document.getElementById('postImagesPreview');
+        const preview = document.getElementById('postImagesPreview') || document.getElementById('attachmentsPreview');
         if (!preview) return;
+        preview.classList.remove('hidden');
 
         Array.from(files).forEach(file => {
             if (!file.type.startsWith('image/')) return;
@@ -261,7 +301,7 @@ const Feed = {
 
     removeImage(index) {
         this.pendingImages.splice(index, 1);
-        const preview = document.getElementById('postImagesPreview');
+        const preview = document.getElementById('postImagesPreview') || document.getElementById('attachmentsPreview');
         if (preview) {
             preview.innerHTML = '';
             this.pendingImages.forEach((img, i) => {
@@ -303,8 +343,20 @@ const Feed = {
 
             document.getElementById('postContent').value = '';
             if (document.getElementById('postTagsInput')) document.getElementById('postTagsInput').value = '';
-            if (document.getElementById('postImagesPreview')) document.getElementById('postImagesPreview').innerHTML = '';
+            const imgPreview = document.getElementById('postImagesPreview') || document.getElementById('attachmentsPreview');
+            if (imgPreview) {
+                imgPreview.innerHTML = '';
+                imgPreview.classList.add('hidden');
+            }
             this.pendingImages = [];
+
+            // Reset form visibility
+            const formEl = document.getElementById('createPostForm');
+            const trigger = document.getElementById('createPostTrigger');
+            if (formEl && trigger) {
+                formEl.classList.add('hidden');
+                trigger.parentElement.style.display = 'flex';
+            }
 
             this.currentPage = 1;
             await this.loadPosts();
@@ -640,7 +692,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (path.includes('post.html')) {
         await PostPage.init();
     } else if (path === '/' || path.endsWith('index.html') || path.includes('feed')) {
-        if (document.getElementById('feedPosts')) {
+        if (document.getElementById('postsFeed') || document.getElementById('feedPosts')) {
             await Feed.init();
         }
     }
