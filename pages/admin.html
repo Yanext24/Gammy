@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=15">
 </head>
 <body>
     <!-- Header -->
@@ -24,6 +24,22 @@
             </nav>
 
             <div class="header-actions">
+                <div class="notifications-wrapper hidden" id="notificationsWrapper">
+                    <button class="notifications-btn" id="notificationsBtn" aria-label="Уведомления">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notifications-badge hidden" id="notificationsBadge">0</span>
+                    </button>
+                    <div class="notifications-dropdown glass hidden" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>Уведомления</h3>
+                            <button onclick="Notifications.markAllAsRead()">Прочитать все</button>
+                        </div>
+                        <div class="notifications-list" id="notificationsList"></div>
+                    </div>
+                </div>
                 <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
                     <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -118,16 +134,7 @@
                     </svg>
                     Настройки сайта
                 </a>
-                <a href="#pages" class="admin-nav-item" data-section="pages">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                    Страницы
-                </a>
+                <!-- Pages section removed - managed via HTML files and Page Content settings -->
                 <a href="#media" class="admin-nav-item" data-section="media">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -316,7 +323,7 @@
                             </div>
                             <div class="image-input-content">
                                 <div class="image-mode-panel active" id="article-url-panel">
-                                    <input type="url" id="articleImage" placeholder="https://example.com/image.jpg">
+                                    <input type="text" id="articleImage" placeholder="https://example.com/image.jpg">
                                 </div>
                                 <div class="image-mode-panel" id="article-upload-panel">
                                     <div class="image-drop-zone" id="articleImageDropZone">
@@ -385,11 +392,21 @@
                                 <button type="button" class="toolbar-btn" data-command="createLink" title="Ссылка">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                                 </button>
-                                <button type="button" class="toolbar-btn" data-command="insertImage" title="Изображение">
+                                <button type="button" class="toolbar-btn" data-command="insertImage" title="Изображение по URL">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" id="uploadImageBtn" title="Загрузить изображение">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                </button>
+                                <input type="file" id="editorImageUpload" accept="image/*" style="display: none;">
+                                <span style="flex: 1"></span>
+                                <button type="button" class="toolbar-btn" id="toggleHtmlBtn" title="Переключить HTML режим" style="margin-left: auto;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                    HTML
                                 </button>
                             </div>
                             <div class="editor-content" id="editorContent" contenteditable="true" data-placeholder="Начните писать статью..."></div>
+                            <textarea id="editorHtmlSource" style="display: none; width: 100%; min-height: 400px; font-family: monospace; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); resize: vertical;"></textarea>
                         </div>
                     </div>
 
@@ -496,8 +513,7 @@
             </section>
 
             <!-- Category Modal -->
-            <div class="modal" id="categoryModal">
-                <div class="modal-overlay" onclick="Admin.closeCategoryModal()"></div>
+            <div class="modal" id="categoryModal" onclick="if(event.target === this) Admin.closeCategoryModal()">
                 <div class="modal-content glass">
                     <button class="modal-close" onclick="Admin.closeCategoryModal()">&times;</button>
                     <h2 class="modal-title" id="categoryModalTitle">Добавить категорию</h2>
@@ -533,6 +549,13 @@
                                 Показывать на главной странице
                             </label>
                             <small style="color: var(--text-muted); display: block; margin-top: 4px;">Последняя статья из категории будет отображаться на главной</small>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="categoryShowInFooter" style="width: 18px; height: 18px;" checked>
+                                Показывать в футере
+                            </label>
+                            <small style="color: var(--text-muted); display: block; margin-top: 4px;">Категория будет отображаться в футере на всех страницах</small>
                         </div>
                         <div style="display: flex; gap: 12px; margin-top: 20px;">
                             <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -594,15 +617,41 @@
                         <h3 class="seo-title">Robots & Sitemap</h3>
 
                         <div class="form-group">
-                            <label for="robotsTxt">robots.txt</label>
-                            <textarea id="robotsTxt" rows="5" placeholder="User-agent: *&#10;Allow: /"></textarea>
+                            <label for="siteDomain">Домен сайта (для sitemap)</label>
+                            <input type="url" id="siteDomain" placeholder="https://gammy.space">
+                            <small style="color: var(--text-muted); font-size: 12px;">Используется для генерации sitemap.xml</small>
                         </div>
 
                         <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="generateSitemap" checked>
-                                Автоматически генерировать sitemap.xml
-                            </label>
+                            <label for="robotsTxt">robots.txt</label>
+                            <textarea id="robotsTxt" rows="12" style="font-family: monospace; font-size: 13px;" placeholder="User-agent: *
+Allow: /
+
+Sitemap: https://gammy.space/sitemap.xml
+
+Disallow: /api/
+Disallow: /pages/admin.html"></textarea>
+                            <small style="color: var(--text-muted); font-size: 12px;">Настройте правила индексации для поисковых роботов</small>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <a href="/robots.txt" target="_blank" class="btn btn-outline" style="font-size: 13px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right: 6px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                Открыть robots.txt
+                            </a>
+                            <a href="/sitemap.xml" target="_blank" class="btn btn-outline" style="font-size: 13px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right: 6px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                Открыть sitemap.xml
+                            </a>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 16px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">Для Google Search Console:</h4>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 8px;">
+                                1. Добавьте ваш сайт в <a href="https://search.google.com/search-console" target="_blank" style="color: var(--accent-primary);">Google Search Console</a><br>
+                                2. Подтвердите право собственности<br>
+                                3. Добавьте sitemap: <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">https://ваш-домен/sitemap.xml</code>
+                            </p>
                         </div>
                     </div>
 
@@ -726,67 +775,27 @@
                         </div>
                     </div>
 
+                    <!-- 404 Page Settings -->
+                    <div class="seo-section">
+                        <h3 class="seo-title">Страница 404</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">Настройте текст страницы ошибки 404 (страница не найдена)</p>
+
+                        <div class="form-group">
+                            <label for="error404Title">Заголовок</label>
+                            <input type="text" id="error404Title" placeholder="Страница не найдена">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="error404Description">Описание</label>
+                            <textarea id="error404Description" rows="3" placeholder="К сожалению, запрашиваемая страница не существует или была перемещена."></textarea>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Сохранить настройки</button>
                 </form>
             </section>
 
-            <!-- Pages Section -->
-            <section class="admin-section hidden" id="pages">
-                <div class="admin-header">
-                    <h1 class="admin-title">Страницы</h1>
-                    <button class="btn btn-primary" onclick="Admin.showPageModal()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Добавить страницу
-                    </button>
-                </div>
-
-                <div class="pages-grid" id="pagesGrid">
-                    <!-- Dynamic content -->
-                </div>
-            </section>
-
-            <!-- Page Modal -->
-            <div class="modal" id="pageModal">
-                <div class="modal-overlay" onclick="Admin.closePageModal()"></div>
-                <div class="modal-content glass" style="max-width: 800px;">
-                    <button class="modal-close" onclick="Admin.closePageModal()">&times;</button>
-                    <h2 class="modal-title" id="pageModalTitle">Добавить страницу</h2>
-                    <form id="pageForm">
-                        <input type="hidden" id="pageId">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="form-group">
-                                <label for="pageTitle">Название страницы</label>
-                                <input type="text" id="pageTitle" placeholder="О нас" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="pageSlug">URL (slug)</label>
-                                <input type="text" id="pageSlug" placeholder="about" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="pageContent">Содержимое (HTML)</label>
-                            <textarea id="pageContent" rows="12" placeholder="<h2>Заголовок</h2><p>Текст страницы...</p>"></textarea>
-                        </div>
-                        <div style="display: flex; gap: 20px;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="pageShowInHeader" style="width: 18px; height: 18px;">
-                                Показывать в шапке
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="pageShowInFooter" style="width: 18px; height: 18px;">
-                                Показывать в подвале
-                            </label>
-                        </div>
-                        <div style="display: flex; gap: 12px; margin-top: 20px;">
-                            <button type="submit" class="btn btn-primary">Сохранить</button>
-                            <button type="button" class="btn btn-ghost" onclick="Admin.closePageModal()">Отмена</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <!-- Pages section removed - managed via Page Content settings -->
 
             <!-- Media Section -->
             <section class="admin-section hidden" id="media">
@@ -826,6 +835,7 @@
                         <button type="button" class="page-tab" data-page="about">О нас</button>
                         <button type="button" class="page-tab" data-page="contact">Контакты</button>
                         <button type="button" class="page-tab" data-page="categories">Категории</button>
+                        <button type="button" class="page-tab" data-page="footer">Футер</button>
                     </div>
 
                     <!-- Home Page Content -->
@@ -867,26 +877,71 @@
                     <!-- About Page Content -->
                     <div class="page-content-panel" id="panel-about">
                         <div class="seo-section">
-                            <h3 class="seo-title">Контент страницы "О нас"</h3>
+                            <h3 class="seo-title">Заголовок страницы</h3>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                 <div class="form-group">
-                                    <label for="aboutTitle">Заголовок</label>
-                                    <input type="text" id="aboutTitle" placeholder="О нас">
+                                    <label for="aboutTitle">Заголовок (до выделения)</label>
+                                    <input type="text" id="aboutTitle" placeholder="О">
                                 </div>
                                 <div class="form-group">
-                                    <label for="aboutTitleHighlight">Выделенный текст</label>
-                                    <input type="text" id="aboutTitleHighlight" placeholder="Gammy">
+                                    <label for="aboutTitleHighlight">Выделенный текст (градиент)</label>
+                                    <input type="text" id="aboutTitleHighlight" placeholder="Gammy Blog">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="aboutSubtitle">Подзаголовок</label>
-                                <input type="text" id="aboutSubtitle" placeholder="Узнайте больше о нашей команде">
+                                <input type="text" id="aboutSubtitle" placeholder="Краткое описание под заголовком">
                             </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Содержимое страницы (HTML)</h3>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+                                Весь контент страницы. Используйте HTML-теги для форматирования.
+                            </p>
                             <div class="form-group">
-                                <label for="aboutContent">Содержимое (HTML)</label>
-                                <textarea id="aboutContent" rows="10" placeholder="<h2>О блоге</h2><p>Текст...</p>"></textarea>
+                                <label for="aboutContent">HTML код страницы</label>
+                                <textarea id="aboutContent" rows="25" style="font-family: monospace; font-size: 13px;" placeholder="<div class='about-section'>
+    <h2>Наша миссия</h2>
+    <p>Текст о миссии...</p>
+</div>
+
+<div class='stats-grid'>
+    <div class='stat-card'>
+        <div class='stat-value'>50+</div>
+        <div class='stat-label'>Статей</div>
+    </div>
+</div>
+
+<div class='about-section'>
+    <h2>Наша команда</h2>
+    <div class='team-grid'>
+        <div class='team-card'>
+            <img src='URL' class='team-avatar'>
+            <h3 class='team-name'>Имя</h3>
+            <div class='team-role'>Должность</div>
+            <p class='team-bio'>Описание</p>
+        </div>
+    </div>
+</div>"></textarea>
                             </div>
+                            <details style="margin-top: 12px;">
+                                <summary style="cursor: pointer; color: var(--accent-primary); font-size: 14px;">Доступные CSS классы</summary>
+                                <div style="margin-top: 12px; padding: 16px; background: var(--card-bg); border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                                    <p><code>.about-section</code> - секция с отступами (max-width: 800px)</p>
+                                    <p><code>.stats-grid</code> - сетка для статистики</p>
+                                    <p><code>.stat-card</code> - карточка статистики</p>
+                                    <p><code>.stat-value</code> - большое число (градиент)</p>
+                                    <p><code>.stat-label</code> - подпись</p>
+                                    <p><code>.team-grid</code> - сетка для команды</p>
+                                    <p><code>.team-card</code> - карточка участника</p>
+                                    <p><code>.team-avatar</code> - аватар (100x100)</p>
+                                    <p><code>.team-name</code> - имя</p>
+                                    <p><code>.team-role</code> - должность</p>
+                                    <p><code>.team-bio</code> - описание</p>
+                                </div>
+                            </details>
                         </div>
 
                         <div class="seo-section">
@@ -1040,6 +1095,61 @@
                         </div>
                     </div>
 
+                    <!-- Footer Content -->
+                    <div class="page-content-panel" id="panel-footer">
+                        <div class="seo-section">
+                            <h3 class="seo-title">Настройки футера</h3>
+
+                            <div class="form-group">
+                                <label for="footerDescription">Описание сайта</label>
+                                <input type="text" id="footerDescription" placeholder="Современный блог о технологиях, дизайне и инновациях.">
+                            </div>
+                            <div class="form-group">
+                                <label for="footerCopyright">Копирайт</label>
+                                <input type="text" id="footerCopyright" placeholder="© 2024 Gammy Blog. Все права защищены.">
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Ссылки навигации</h3>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Формат: Название|URL (каждая ссылка на новой строке)</p>
+                            <div class="form-group">
+                                <label for="footerNavLinks">Ссылки навигации</label>
+                                <textarea id="footerNavLinks" rows="5" placeholder="Лента|/index.html
+Блог|/blog.html
+Категории|/pages/categories.html
+О нас|/pages/about.html"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Дополнительные ссылки</h3>
+                            <div class="form-group">
+                                <label for="footerExtraLinks">Дополнительные ссылки</label>
+                                <textarea id="footerExtraLinks" rows="5" placeholder="Политика конфиденциальности|/privacy.html
+Условия использования|/terms.html"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="seo-section">
+                            <h3 class="seo-title">Подписка на рассылку</h3>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="footerShowSubscribe" checked>
+                                    Показывать форму подписки
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="footerSubscribeTitle">Заголовок подписки</label>
+                                <input type="text" id="footerSubscribeTitle" placeholder="Подписка">
+                            </div>
+                            <div class="form-group">
+                                <label for="footerSubscribeText">Текст подписки</label>
+                                <input type="text" id="footerSubscribeText" placeholder="Получайте новые статьи на почту">
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Сохранить контент</button>
                 </form>
             </section>
@@ -1102,18 +1212,12 @@
                     </div>
                 </div>
 
-                <!-- Charts -->
+                <!-- Stats info -->
                 <div class="stats-charts-grid">
                     <div class="stats-chart-card">
-                        <h3 class="stats-chart-title">Посты за последние 7 дней</h3>
-                        <div class="stats-chart" id="postsChart">
-                            <canvas id="postsChartCanvas"></canvas>
-                        </div>
-                    </div>
-                    <div class="stats-chart-card">
-                        <h3 class="stats-chart-title">Просмотры за последние 7 дней</h3>
-                        <div class="stats-chart" id="viewsChart">
-                            <canvas id="viewsChartCanvas"></canvas>
+                        <h3 class="stats-chart-title">Активность за неделю</h3>
+                        <div class="stats-info" id="weeklyStats">
+                            <p style="color: var(--text-muted); text-align: center; padding: 20px;">Статистика загружается...</p>
                         </div>
                     </div>
                 </div>
@@ -1252,8 +1356,8 @@
         <span class="toast-message" id="toastMessage"></span>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/app.js"></script>
-    <script src="../js/admin.js"></script>
+    <script src="../js/api.js?v=11"></script>
+    <script src="../js/app.js?v=20"></script>
+    <script src="../js/admin.js?v=11"></script>
 </body>
 </html>

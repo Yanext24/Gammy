@@ -39,6 +39,10 @@ const API = {
             const data = await response.json();
 
             if (!response.ok) {
+                // Автоматический разлогин при 401 (невалидный/просроченный токен)
+                if (response.status === 401) {
+                    this.setToken(null);
+                }
                 throw new Error(data.error || 'Request failed');
             }
 
@@ -128,12 +132,30 @@ const API = {
         return this.delete(`/users/${id}`);
     },
 
+    async getUserPosts(userId, params = {}) {
+        const cleanParams = {};
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== '') {
+                cleanParams[key] = value;
+            }
+        }
+        const query = new URLSearchParams(cleanParams).toString();
+        return this.get(`/users/${userId}/posts${query ? '?' + query : ''}`);
+    },
+
     // ============================================
     // POSTS (Feed)
     // ============================================
 
     async getPosts(params = {}) {
-        const query = new URLSearchParams(params).toString();
+        // Filter out undefined/null values
+        const cleanParams = {};
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== '') {
+                cleanParams[key] = value;
+            }
+        }
+        const query = new URLSearchParams(cleanParams).toString();
         return this.get(`/posts${query ? '?' + query : ''}`);
     },
 
@@ -210,7 +232,14 @@ const API = {
     // ============================================
 
     async getArticles(params = {}) {
-        const query = new URLSearchParams(params).toString();
+        // Filter out undefined/null values
+        const cleanParams = {};
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== '') {
+                cleanParams[key] = value;
+            }
+        }
+        const query = new URLSearchParams(cleanParams).toString();
         return this.get(`/articles${query ? '?' + query : ''}`);
     },
 
@@ -286,6 +315,15 @@ const API = {
             body: formData
         });
 
+        if (!response.ok) {
+            // Автоматический разлогин при 401
+            if (response.status === 401) {
+                this.setToken(null);
+            }
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || 'Ошибка загрузки файла');
+        }
+
         return response.json();
     },
 
@@ -295,6 +333,30 @@ const API = {
 
     async deleteMedia(id) {
         return this.delete(`/media/${id}`);
+    },
+
+    // ============================================
+    // NOTIFICATIONS
+    // ============================================
+
+    async getNotifications() {
+        return this.get('/notifications');
+    },
+
+    async getUnreadNotificationsCount() {
+        return this.get('/notifications/unread');
+    },
+
+    async markNotificationAsRead(id) {
+        return this.put(`/notifications/${id}/read`, {});
+    },
+
+    async markAllNotificationsAsRead() {
+        return this.put('/notifications/read-all', {});
+    },
+
+    async deleteNotification(id) {
+        return this.delete(`/notifications/${id}`);
     },
 
     // ============================================

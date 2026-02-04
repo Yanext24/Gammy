@@ -129,9 +129,29 @@ function init() {
             color TEXT DEFAULT '#6366f1',
             icon TEXT,
             show_on_home INTEGER DEFAULT 0,
+            show_in_footer INTEGER DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+    // Migration: add show_in_footer column if missing
+    try {
+        db.exec(`ALTER TABLE categories ADD COLUMN show_in_footer INTEGER DEFAULT 1`);
+    } catch (e) {
+        // Column already exists
+    }
+
+    // Migration: add notification preferences columns to users table
+    try {
+        db.exec(`ALTER TABLE users ADD COLUMN notify_comments INTEGER DEFAULT 1`);
+    } catch (e) {
+        // Column already exists
+    }
+    try {
+        db.exec(`ALTER TABLE users ADD COLUMN notify_newsletter INTEGER DEFAULT 0`);
+    } catch (e) {
+        // Column already exists
+    }
 
     // Media table
     db.exec(`
@@ -151,6 +171,24 @@ function init() {
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
+        )
+    `);
+
+    // Notifications table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            source_user_id INTEGER,
+            source_user_name TEXT,
+            post_id INTEGER,
+            article_id INTEGER,
+            comment_id INTEGER,
+            message TEXT,
+            is_read INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     `);
 

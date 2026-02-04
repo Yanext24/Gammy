@@ -88,9 +88,6 @@ const Admin = {
             case 'site-settings':
                 this.loadSiteSettings();
                 break;
-            case 'pages':
-                this.loadPages();
-                break;
             case 'media':
                 this.loadMedia();
                 break;
@@ -135,13 +132,13 @@ const Admin = {
                         <td>${UI.formatDate(article.created_at)}</td>
                         <td>
                             <div class="table-actions">
-                                <button class="table-action-btn" onclick="Admin.editArticle(${article.id})" title="Редактировать">
+                                <button class="table-action-btn" data-action="edit-article" data-id="${article.id}" title="Редактировать">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                     </svg>
                                 </button>
-                                <button class="table-action-btn delete" onclick="Admin.deleteArticle(${article.id})" title="Удалить">
+                                <button class="table-action-btn delete" data-action="delete-article" data-id="${article.id}" title="Удалить">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -151,6 +148,27 @@ const Admin = {
                         </td>
                     </tr>
                 `).join('');
+
+                // Add event delegation for dashboard article actions (only once)
+                if (!tableBody.dataset.delegated) {
+                    tableBody.dataset.delegated = 'true';
+                    tableBody.addEventListener('click', (e) => {
+                        const btn = e.target.closest('[data-action]');
+                        if (!btn) return;
+
+                        const action = btn.dataset.action;
+                        const id = parseInt(btn.dataset.id, 10);
+
+                        switch (action) {
+                            case 'edit-article':
+                                this.editArticle(id);
+                                break;
+                            case 'delete-article':
+                                this.deleteArticle(id);
+                                break;
+                        }
+                    });
+                }
             }
         } catch (err) {
             console.error('Dashboard load error:', err);
@@ -176,19 +194,19 @@ const Admin = {
                         <td>${UI.formatDate(article.created_at)}</td>
                         <td>
                             <div class="table-actions">
-                                <button class="table-action-btn" onclick="Admin.viewArticle(${article.id})" title="Просмотр">
+                                <button class="table-action-btn" data-action="view-article" data-id="${article.id}" title="Просмотр">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                         <circle cx="12" cy="12" r="3"></circle>
                                     </svg>
                                 </button>
-                                <button class="table-action-btn" onclick="Admin.editArticle(${article.id})" title="Редактировать">
+                                <button class="table-action-btn" data-action="edit-article" data-id="${article.id}" title="Редактировать">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                     </svg>
                                 </button>
-                                <button class="table-action-btn delete" onclick="Admin.deleteArticle(${article.id})" title="Удалить">
+                                <button class="table-action-btn delete" data-action="delete-article" data-id="${article.id}" title="Удалить">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -198,6 +216,30 @@ const Admin = {
                         </td>
                     </tr>
                 `).join('');
+
+                // Add event delegation for article actions (only once)
+                if (!tableBody.dataset.delegated) {
+                    tableBody.dataset.delegated = 'true';
+                    tableBody.addEventListener('click', (e) => {
+                        const btn = e.target.closest('[data-action]');
+                        if (!btn) return;
+
+                        const action = btn.dataset.action;
+                        const id = parseInt(btn.dataset.id, 10);
+
+                        switch (action) {
+                            case 'view-article':
+                                this.viewArticle(id);
+                                break;
+                            case 'edit-article':
+                                this.editArticle(id);
+                                break;
+                            case 'delete-article':
+                                this.deleteArticle(id);
+                                break;
+                        }
+                    });
+                }
             }
         } catch (err) {
             console.error('Articles load error:', err);
@@ -291,10 +333,95 @@ const Admin = {
             });
         });
 
+        // Upload image button for editor
+        const uploadImageBtn = document.getElementById('uploadImageBtn');
+        const editorImageUpload = document.getElementById('editorImageUpload');
+
+        if (uploadImageBtn && editorImageUpload) {
+            uploadImageBtn.addEventListener('click', () => {
+                editorImageUpload.click();
+            });
+
+            editorImageUpload.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    UI.showToast('Файл слишком большой (макс. 5MB)', 'error');
+                    return;
+                }
+
+                try {
+                    UI.showToast('Загрузка...', 'info');
+                    const result = await API.uploadMedia(file);
+
+                    // Insert image at cursor position in editor
+                    const editor = document.getElementById('editorContent');
+                    editor.focus();
+
+                    const img = document.createElement('img');
+                    img.src = result.path;
+                    img.alt = file.name;
+                    img.style.maxWidth = '100%';
+
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(img);
+                        range.setStartAfter(img);
+                        range.setEndAfter(img);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    } else {
+                        editor.appendChild(img);
+                    }
+
+                    UI.showToast('Изображение загружено!', 'success');
+                } catch (err) {
+                    UI.showToast('Ошибка загрузки: ' + err.message, 'error');
+                }
+
+                // Reset input
+                editorImageUpload.value = '';
+            });
+        }
+
+        // Toggle HTML mode button
+        const toggleHtmlBtn = document.getElementById('toggleHtmlBtn');
+        const editorHtmlSource = document.getElementById('editorHtmlSource');
+        let isHtmlMode = false;
+
+        if (toggleHtmlBtn && editorHtmlSource) {
+            toggleHtmlBtn.addEventListener('click', () => {
+                isHtmlMode = !isHtmlMode;
+
+                if (isHtmlMode) {
+                    // Switch to HTML mode
+                    editorHtmlSource.value = editor.innerHTML;
+                    editor.style.display = 'none';
+                    editorHtmlSource.style.display = 'block';
+                    toggleHtmlBtn.style.background = 'var(--accent-primary)';
+                    toggleHtmlBtn.style.color = 'white';
+                } else {
+                    // Switch back to visual mode
+                    editor.innerHTML = editorHtmlSource.value;
+                    editor.style.display = 'block';
+                    editorHtmlSource.style.display = 'none';
+                    toggleHtmlBtn.style.background = '';
+                    toggleHtmlBtn.style.color = '';
+                }
+            });
+        }
+
         const articleForm = document.getElementById('articleForm');
         if (articleForm) {
             articleForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                // Sync HTML source to editor before saving
+                if (isHtmlMode && editorHtmlSource) {
+                    editor.innerHTML = editorHtmlSource.value;
+                }
                 this.saveArticle();
             });
         }
@@ -379,23 +506,38 @@ const Admin = {
             const tableBody = document.getElementById('commentsTable');
 
             if (tableBody) {
-                tableBody.innerHTML = comments.map(comment => `
+                // Determine comment type based on available fields
+                const getCommentType = (comment) => {
+                    if (comment.type) return comment.type;
+                    if (comment.post_id) return 'post';
+                    if (comment.article_id || comment.article_title) return 'article';
+                    return 'article'; // default
+                };
+
+                tableBody.innerHTML = comments.map(comment => {
+                    const commentType = getCommentType(comment);
+                    const authorName = comment.author_name || comment.name || 'Аноним';
+                    const authorEmail = comment.author_email || comment.email || '';
+                    const commentText = UI.truncate(comment.text || comment.content, 50);
+                    const targetTitle = comment.article_title || comment.post_id || '-';
+
+                    return `
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="comment-avatar" style="width: 36px; height: 36px; font-size: 14px;">${(comment.author_name || comment.name || 'A').charAt(0).toUpperCase()}</div>
+                                <div class="comment-avatar" style="width: 36px; height: 36px; font-size: 14px;">${authorName.charAt(0).toUpperCase()}</div>
                                 <div>
-                                    <div style="font-weight: 500;">${comment.author_name || comment.name || 'Аноним'}</div>
-                                    <div style="font-size: 12px; color: var(--text-muted);">${comment.author_email || comment.email || ''}</div>
+                                    <div style="font-weight: 500;">${authorName}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${authorEmail}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>${UI.truncate(comment.text || comment.content, 50)}</td>
-                        <td>${comment.article_title || comment.post_id || '-'}</td>
+                        <td>${commentText}</td>
+                        <td>${targetTitle}</td>
                         <td>${UI.formatDate(comment.created_at)}</td>
                         <td>
                             <div class="table-actions">
-                                <button class="table-action-btn delete" onclick="Admin.deleteComment(${comment.id}, '${comment.type || 'article'}')" title="Удалить">
+                                <button class="table-action-btn delete" data-action="delete-comment" data-id="${comment.id}" data-type="${commentType}" title="Удалить">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -404,7 +546,21 @@ const Admin = {
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                    `;
+                }).join('');
+
+                // Add event delegation for comment actions (only once)
+                if (!tableBody.dataset.delegated) {
+                    tableBody.dataset.delegated = 'true';
+                    tableBody.addEventListener('click', (e) => {
+                        const btn = e.target.closest('[data-action="delete-comment"]');
+                        if (btn) {
+                            const id = parseInt(btn.dataset.id, 10);
+                            const type = btn.dataset.type;
+                            this.deleteComment(id, type);
+                        }
+                    });
+                }
             }
         } catch (err) {
             console.error('Comments load error:', err);
@@ -451,12 +607,12 @@ const Admin = {
                         <td>
                             <div class="table-actions">
                                 ${user.role !== 'admin' ? `
-                                    <button class="table-action-btn" onclick="Admin.makeAdmin(${user.id})" title="Сделать админом">
+                                    <button class="table-action-btn" data-action="make-admin" data-id="${user.id}" title="Сделать админом">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                         </svg>
                                     </button>
-                                    <button class="table-action-btn delete" onclick="Admin.deleteUser(${user.id})" title="Удалить">
+                                    <button class="table-action-btn delete" data-action="delete-user" data-id="${user.id}" title="Удалить">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -467,6 +623,27 @@ const Admin = {
                         </td>
                     </tr>
                 `).join('');
+
+                // Add event delegation for user actions (only once)
+                if (!tableBody.dataset.delegated) {
+                    tableBody.dataset.delegated = 'true';
+                    tableBody.addEventListener('click', (e) => {
+                        const btn = e.target.closest('[data-action]');
+                        if (!btn) return;
+
+                        const action = btn.dataset.action;
+                        const id = parseInt(btn.dataset.id, 10);
+
+                        switch (action) {
+                            case 'make-admin':
+                                this.makeAdmin(id);
+                                break;
+                            case 'delete-user':
+                                this.deleteUser(id);
+                                break;
+                        }
+                    });
+                }
             }
         } catch (err) {
             console.error('Users load error:', err);
@@ -517,13 +694,13 @@ const Admin = {
                             <span class="category-card-slug">${cat.slug}</span>
                         </div>
                         <div class="category-card-actions">
-                            <button class="table-action-btn" onclick="Admin.editCategory(${cat.id})" title="Редактировать">
+                            <button class="table-action-btn" data-action="edit-category" data-id="${cat.id}" title="Редактировать">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </button>
-                            <button class="table-action-btn delete" onclick="Admin.deleteCategory(${cat.id})" title="Удалить">
+                            <button class="table-action-btn delete" data-action="delete-category" data-id="${cat.id}" title="Удалить">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -532,6 +709,27 @@ const Admin = {
                         </div>
                     </div>
                 `).join('');
+
+                // Add event delegation for category actions (only once)
+                if (!grid.dataset.delegated) {
+                    grid.dataset.delegated = 'true';
+                    grid.addEventListener('click', (e) => {
+                        const btn = e.target.closest('[data-action]');
+                        if (!btn) return;
+
+                        const action = btn.dataset.action;
+                        const id = parseInt(btn.dataset.id, 10);
+
+                        switch (action) {
+                            case 'edit-category':
+                                this.editCategory(id);
+                                break;
+                            case 'delete-category':
+                                this.deleteCategory(id);
+                                break;
+                        }
+                    });
+                }
             }
         } catch (err) {
             console.error('Categories load error:', err);
@@ -614,6 +812,8 @@ const Admin = {
                     document.getElementById('categoryColorText').value = cat.color || '#6366f1';
                     document.getElementById('categoryIcon').value = cat.icon || '';
                     document.getElementById('iconPreview').innerHTML = cat.icon || '';
+                    document.getElementById('categoryShowOnHome').checked = !!cat.show_on_home;
+                    document.getElementById('categoryShowInFooter').checked = cat.show_in_footer !== 0;
                 }
             } catch (err) {
                 console.error('Category load error:', err);
@@ -625,6 +825,8 @@ const Admin = {
             document.getElementById('categoryColor').value = '#6366f1';
             document.getElementById('categoryColorText').value = '#6366f1';
             document.getElementById('iconPreview').innerHTML = '';
+            document.getElementById('categoryShowOnHome').checked = false;
+            document.getElementById('categoryShowInFooter').checked = true;
         }
 
         modal.classList.add('active');
@@ -645,7 +847,9 @@ const Admin = {
             name: document.getElementById('categoryName').value,
             slug: document.getElementById('categorySlug').value,
             color: document.getElementById('categoryColor').value,
-            icon: document.getElementById('categoryIcon').value
+            icon: document.getElementById('categoryIcon').value,
+            show_on_home: document.getElementById('categoryShowOnHome').checked ? 1 : 0,
+            show_in_footer: document.getElementById('categoryShowInFooter').checked ? 1 : 0
         };
 
         if (!categoryData.name || !categoryData.slug) {
@@ -697,8 +901,33 @@ const Admin = {
             document.getElementById('siteAuthor').value = settings.siteAuthor || '';
             document.getElementById('ogImage').value = settings.ogImage || '';
             document.getElementById('ogType').value = settings.ogType || 'website';
-            document.getElementById('robotsTxt').value = settings.robotsTxt || 'User-agent: *\nAllow: /';
-            document.getElementById('generateSitemap').checked = settings.generateSitemap !== false;
+            document.getElementById('siteDomain').value = settings.siteDomain || 'https://gammy.space';
+
+            // Default robots.txt content
+            const defaultRobots = `User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: ${settings.siteDomain || 'https://gammy.space'}/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin and API
+Disallow: /api/
+Disallow: /pages/admin.html
+
+# Allow all content pages
+Allow: /pages/
+Allow: /blog.html
+Allow: /index.html
+Allow: /pages/post.html
+Allow: /pages/article.html
+Allow: /pages/categories.html
+Allow: /pages/about.html
+Allow: /pages/contact.html`;
+
+            document.getElementById('robotsTxt').value = settings.robotsTxt || defaultRobots;
 
             const form = document.getElementById('seoSettingsForm');
             if (form) {
@@ -720,8 +949,8 @@ const Admin = {
             siteAuthor: document.getElementById('siteAuthor').value,
             ogImage: document.getElementById('ogImage').value,
             ogType: document.getElementById('ogType').value,
-            robotsTxt: document.getElementById('robotsTxt').value,
-            generateSitemap: document.getElementById('generateSitemap').checked
+            siteDomain: document.getElementById('siteDomain').value,
+            robotsTxt: document.getElementById('robotsTxt').value
         };
 
         try {
@@ -751,9 +980,14 @@ const Admin = {
             document.getElementById('accentColor3').value = settings.accentColor3 || '#a855f7';
             document.getElementById('accentColor3Text').value = settings.accentColor3 || '#a855f7';
 
+            // 404 page settings
+            document.getElementById('error404Title').value = settings.error404_title || 'Страница не найдена';
+            document.getElementById('error404Description').value = settings.error404_description || 'К сожалению, запрашиваемая страница не существует или была перемещена.';
+
             this.updateGradientPreview();
             this.updateBrandPreview();
             this.initColorSync();
+            this.initLogoTypeSwitch();
 
             const form = document.getElementById('siteSettingsForm');
             if (form) {
@@ -797,6 +1031,48 @@ const Admin = {
         document.getElementById('brandLogoIcon')?.addEventListener('input', () => this.updateBrandPreview());
     },
 
+    initLogoTypeSwitch() {
+        const radioButtons = document.querySelectorAll('input[name="logoType"]');
+        const textSettings = document.getElementById('logoTextSettings');
+        const imageSettings = document.getElementById('logoImageSettings');
+        const logoInput = document.getElementById('logoImageInput');
+        const logoPreview = document.getElementById('logoPreview');
+        const logoPreviewImg = document.getElementById('logoPreviewImg');
+
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'text') {
+                    if (textSettings) textSettings.style.display = 'block';
+                    if (imageSettings) imageSettings.style.display = 'none';
+                } else {
+                    if (textSettings) textSettings.style.display = 'none';
+                    if (imageSettings) imageSettings.style.display = 'block';
+                }
+            });
+        });
+
+        if (logoInput) {
+            logoInput.addEventListener('change', async () => {
+                const file = logoInput.files[0];
+                if (!file) return;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    UI.showToast('Файл слишком большой (макс. 5MB)', 'error');
+                    return;
+                }
+
+                try {
+                    const result = await API.uploadMedia(file);
+                    if (logoPreviewImg) logoPreviewImg.src = result.path;
+                    if (logoPreview) logoPreview.style.display = 'block';
+                    document.querySelector('.upload-placeholder')?.style.setProperty('display', 'none');
+                } catch (err) {
+                    UI.showToast('Ошибка загрузки', 'error');
+                }
+            });
+        }
+    },
+
     updateGradientPreview() {
         const color1 = document.getElementById('accentColor1').value;
         const color2 = document.getElementById('accentColor2').value;
@@ -817,6 +1093,16 @@ const Admin = {
 
         if (previewIcon) previewIcon.textContent = icon;
         if (previewText) previewText.textContent = name;
+    },
+
+    removeLogo() {
+        const preview = document.getElementById('logoPreview');
+        const previewImg = document.getElementById('logoPreviewImg');
+        const input = document.getElementById('logoImageInput');
+
+        if (preview) preview.style.display = 'none';
+        if (previewImg) previewImg.src = '';
+        if (input) input.value = '';
     },
 
     setThemePreset(preset) {
@@ -849,7 +1135,9 @@ const Admin = {
             brandLogoIcon: document.getElementById('brandLogoIcon').value,
             accentColor1: document.getElementById('accentColor1').value,
             accentColor2: document.getElementById('accentColor2').value,
-            accentColor3: document.getElementById('accentColor3').value
+            accentColor3: document.getElementById('accentColor3').value,
+            error404_title: document.getElementById('error404Title').value,
+            error404_description: document.getElementById('error404Description').value
         };
 
         try {
@@ -859,22 +1147,6 @@ const Admin = {
             UI.showToast('Ошибка сохранения', 'error');
         }
     },
-
-    // ============================================
-    // PAGES (simplified)
-    // ============================================
-
-    editingPageId: null,
-
-    loadPages() {
-        const grid = document.getElementById('pagesGrid');
-        if (grid) {
-            grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Страницы управляются через HTML файлы</p>';
-        }
-    },
-
-    showPageModal() {},
-    closePageModal() {},
 
     // ============================================
     // MEDIA
@@ -891,15 +1163,15 @@ const Admin = {
                 } else {
                     grid.innerHTML = images.map(img => `
                         <div class="media-item">
-                            <img src="${img.url}" alt="${img.filename}">
+                            <img src="${img.path}" alt="${img.filename}">
                             <div class="media-item-overlay">
-                                <button class="media-item-btn" onclick="Admin.copyImageUrl('${img.url}')" title="Копировать URL">
+                                <button class="media-item-btn" data-action="copy-url" data-url="${img.path}" title="Копировать URL">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                     </svg>
                                 </button>
-                                <button class="media-item-btn delete" onclick="Admin.deleteMediaItem(${img.id})" title="Удалить">
+                                <button class="media-item-btn delete" data-action="delete-media" data-id="${img.id}" title="Удалить">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -909,6 +1181,26 @@ const Admin = {
                             <div class="media-item-name">${img.filename}</div>
                         </div>
                     `).join('');
+
+                    // Add event delegation for media actions (only once)
+                    if (!grid.dataset.delegated) {
+                        grid.dataset.delegated = 'true';
+                        grid.addEventListener('click', (e) => {
+                            const btn = e.target.closest('[data-action]');
+                            if (!btn) return;
+
+                            const action = btn.dataset.action;
+
+                            switch (action) {
+                                case 'copy-url':
+                                    this.copyImageUrl(btn.dataset.url);
+                                    break;
+                                case 'delete-media':
+                                    this.deleteMediaItem(parseInt(btn.dataset.id, 10));
+                                    break;
+                            }
+                        });
+                    }
                 }
             }
 
@@ -1041,6 +1333,15 @@ const Admin = {
             document.getElementById('categoriesSeoDescription').value = settings.categoriesSeoDescription || '';
             document.getElementById('categoriesSeoKeywords').value = settings.categoriesSeoKeywords || '';
 
+            // Footer
+            document.getElementById('footerDescription').value = settings.footerDescription || '';
+            document.getElementById('footerCopyright').value = settings.footerCopyright || '';
+            document.getElementById('footerNavLinks').value = settings.footerNavLinks || '';
+            document.getElementById('footerExtraLinks').value = settings.footerExtraLinks || '';
+            document.getElementById('footerShowSubscribe').checked = settings.footerShowSubscribe !== '0';
+            document.getElementById('footerSubscribeTitle').value = settings.footerSubscribeTitle || '';
+            document.getElementById('footerSubscribeText').value = settings.footerSubscribeText || '';
+
             this.initPageContentTabs();
         } catch (err) {
             console.error('Page content load error:', err);
@@ -1112,7 +1413,15 @@ const Admin = {
             categoriesSubtitle: document.getElementById('categoriesSubtitle').value,
             categoriesSeoTitle: document.getElementById('categoriesSeoTitle').value,
             categoriesSeoDescription: document.getElementById('categoriesSeoDescription').value,
-            categoriesSeoKeywords: document.getElementById('categoriesSeoKeywords').value
+            categoriesSeoKeywords: document.getElementById('categoriesSeoKeywords').value,
+            // Footer
+            footerDescription: document.getElementById('footerDescription').value,
+            footerCopyright: document.getElementById('footerCopyright').value,
+            footerNavLinks: document.getElementById('footerNavLinks').value,
+            footerExtraLinks: document.getElementById('footerExtraLinks').value,
+            footerShowSubscribe: document.getElementById('footerShowSubscribe').checked ? '1' : '0',
+            footerSubscribeTitle: document.getElementById('footerSubscribeTitle').value,
+            footerSubscribeText: document.getElementById('footerSubscribeText').value
         };
 
         try {
@@ -1211,10 +1520,21 @@ const Admin = {
             }
 
             picker.innerHTML = images.map(img => `
-                <div class="media-picker-item" data-url="${img.url}" onclick="Admin.selectMediaImage('${target}', '${img.id}', '${img.url}')">
-                    <img src="${img.url}" alt="${img.filename}">
+                <div class="media-picker-item" data-url="${img.path}" data-action="select-media" data-target="${target}" data-id="${img.id}">
+                    <img src="${img.path}" alt="${img.filename}">
                 </div>
             `).join('');
+
+            // Add event delegation for media picker selection (only once)
+            if (!picker.dataset.delegated) {
+                picker.dataset.delegated = 'true';
+                picker.addEventListener('click', (e) => {
+                    const item = e.target.closest('[data-action="select-media"]');
+                    if (item) {
+                        this.selectMediaImage(item.dataset.target, item.dataset.id, item.dataset.url);
+                    }
+                });
+            }
         } catch (err) {
             picker.innerHTML = '<div class="media-picker-empty">Ошибка загрузки</div>';
         }
@@ -1246,8 +1566,8 @@ const Admin = {
 
         try {
             const result = await API.uploadMedia(file);
-            this.setArticleImagePreview(result.url);
-            this.currentArticleImage = result.url;
+            this.setArticleImagePreview(result.path);
+            this.currentArticleImage = result.path;
         } catch (err) {
             UI.showToast('Ошибка загрузки', 'error');
         }
@@ -1305,6 +1625,35 @@ const Admin = {
             document.getElementById('feedTotalLikes').textContent = stats.totalLikes || 0;
             document.getElementById('feedTotalComments').textContent = stats.totalComments || 0;
 
+            // Show weekly stats info
+            const weeklyDiv = document.getElementById('weeklyStats');
+            if (weeklyDiv && stats.postsPerDay) {
+                const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+                const today = new Date();
+
+                // Convert array of {date, count} to map for easy lookup
+                const countByDate = {};
+                stats.postsPerDay.forEach(item => {
+                    countByDate[item.date] = item.count;
+                });
+
+                let html = '<div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">';
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dayName = days[date.getDay()];
+                    // Format date as YYYY-MM-DD to match API response
+                    const dateStr = date.toISOString().split('T')[0];
+                    const count = countByDate[dateStr] || 0;
+                    html += `<div style="text-align: center; padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;">
+                        <div style="font-size: 20px; font-weight: 600;">${count}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${dayName}</div>
+                    </div>`;
+                }
+                html += '</div>';
+                weeklyDiv.innerHTML = html;
+            }
+
             // Load top posts
             const posts = await API.getPosts({ limit: 10, sort: 'views' });
             this.loadTopPosts(posts.posts || posts || []);
@@ -1339,13 +1688,13 @@ const Admin = {
                     <td>${UI.formatDate(post.created_at)}</td>
                     <td>
                         <div class="table-actions">
-                            <button class="table-action-btn" onclick="window.open('../pages/post.html?slug=${post.slug}', '_blank')" title="Просмотр">
+                            <button class="table-action-btn" data-action="view-post" data-slug="${post.slug}" title="Просмотр">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
                             </button>
-                            <button class="table-action-btn delete" onclick="Admin.deleteFeedPost(${post.id})" title="Удалить">
+                            <button class="table-action-btn delete" data-action="delete-post" data-id="${post.id}" title="Удалить">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1356,6 +1705,26 @@ const Admin = {
                 </tr>
             `;
         }).join('');
+
+        // Add event delegation for post actions (only once)
+        if (!tableBody.dataset.delegated) {
+            tableBody.dataset.delegated = 'true';
+            tableBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+
+                const action = btn.dataset.action;
+
+                switch (action) {
+                    case 'view-post':
+                        window.open('../pages/post.html?slug=' + btn.dataset.slug, '_blank');
+                        break;
+                    case 'delete-post':
+                        this.deleteFeedPost(parseInt(btn.dataset.id, 10));
+                        break;
+                }
+            });
+        }
     },
 
     loadTagsStats(tags) {
@@ -1493,7 +1862,24 @@ function resetArticleForm() {
     Admin.showSection('articles');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for Auth to be ready
+    let attempts = 0;
+    while (!window.Auth && attempts < 40) {
+        await new Promise(r => setTimeout(r, 50));
+        attempts++;
+    }
+
+    // Wait for Auth.init to complete
+    attempts = 0;
+    while (attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+        if (window.Auth.currentUser !== undefined || !localStorage.getItem('gammy_token')) {
+            break;
+        }
+    }
+
     Admin.init();
 });
 

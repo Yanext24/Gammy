@@ -33,7 +33,7 @@ router.get('/', (req, res) => {
         const { category, status, limit, offset } = req.query;
 
         let query = `
-            SELECT a.*, u.name as author_name,
+            SELECT a.*, u.name as author_name, u.avatar as author_avatar,
                    (SELECT COUNT(*) FROM article_comments WHERE article_id = a.id) as comments_count
             FROM articles a
             LEFT JOIN users u ON a.author_id = u.id
@@ -93,12 +93,29 @@ router.get('/admin', authMiddleware, adminMiddleware, (req, res) => {
     }
 });
 
+// Get articles stats (MUST be before /:id to avoid route conflict)
+router.get('/stats/overview', authMiddleware, adminMiddleware, (req, res) => {
+    try {
+        const db = getDb();
+
+        const totalArticles = db.prepare('SELECT COUNT(*) as count FROM articles').get().count;
+        const totalViews = db.prepare('SELECT SUM(views) as sum FROM articles').get().sum || 0;
+        const totalComments = db.prepare('SELECT COUNT(*) as count FROM article_comments').get().count;
+        const published = db.prepare("SELECT COUNT(*) as count FROM articles WHERE status = 'published'").get().count;
+
+        res.json({ totalArticles, totalViews, totalComments, published });
+    } catch (err) {
+        console.error('Get stats error:', err);
+        res.status(500).json({ error: 'Failed to get stats' });
+    }
+});
+
 // Get article by slug
 router.get('/slug/:slug', (req, res) => {
     try {
         const db = getDb();
         const article = db.prepare(`
-            SELECT a.*, u.name as author_name,
+            SELECT a.*, u.name as author_name, u.avatar as author_avatar,
                    (SELECT COUNT(*) FROM article_comments WHERE article_id = a.id) as comments_count
             FROM articles a
             LEFT JOIN users u ON a.author_id = u.id
@@ -121,7 +138,7 @@ router.get('/slug/:slug', (req, res) => {
 });
 
 // Get article by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', optionalAuth, (req, res) => {
     try {
         const db = getDb();
         const article = db.prepare(`
@@ -132,6 +149,12 @@ router.get('/:id', (req, res) => {
         `).get(req.params.id);
 
         if (!article) {
+            return res.status(404).json({ error: 'Article not found' });
+        }
+
+        // Check if article is published or user is admin
+        const isAdmin = req.user && req.user.role === 'admin';
+        if (article.status !== 'published' && !isAdmin) {
             return res.status(404).json({ error: 'Article not found' });
         }
 
@@ -146,6 +169,15 @@ router.get('/:id', (req, res) => {
 router.post('/', authMiddleware, adminMiddleware, (req, res) => {
     try {
         const { title, excerpt, content, image, category, status, seo_title, seo_description, seo_keywords, slug: customSlug } = req.body;
+
+        // Validate required fields
+        if (!title || !title.trim()) {
+            return res.status(400).json({ error: 'Title is required' });
+        }
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: 'Content is required' });
+        }
+
         const db = getDb();
 
         const slug = customSlug || generateSlug(title);
@@ -167,6 +199,12 @@ router.post('/', authMiddleware, adminMiddleware, (req, res) => {
 router.put('/:id', authMiddleware, adminMiddleware, (req, res) => {
     try {
         const { title, excerpt, content, image, category, status, seo_title, seo_description, seo_keywords, slug: customSlug } = req.body;
+
+        // Validate title
+        if (!title || !title.trim()) {
+            return res.status(400).json({ error: 'Title is required' });
+        }
+
         const db = getDb();
 
         const article = db.prepare('SELECT * FROM articles WHERE id = ?').get(req.params.id);
@@ -201,23 +239,6 @@ router.delete('/:id', authMiddleware, adminMiddleware, (req, res) => {
     } catch (err) {
         console.error('Delete article error:', err);
         res.status(500).json({ error: 'Failed to delete article' });
-    }
-});
-
-// Get articles stats
-router.get('/stats/overview', authMiddleware, adminMiddleware, (req, res) => {
-    try {
-        const db = getDb();
-
-        const totalArticles = db.prepare('SELECT COUNT(*) as count FROM articles').get().count;
-        const totalViews = db.prepare('SELECT SUM(views) as sum FROM articles').get().sum || 0;
-        const totalComments = db.prepare('SELECT COUNT(*) as count FROM article_comments').get().count;
-        const published = db.prepare("SELECT COUNT(*) as count FROM articles WHERE status = 'published'").get().count;
-
-        res.json({ totalArticles, totalViews, totalComments, published });
-    } catch (err) {
-        console.error('Get stats error:', err);
-        res.status(500).json({ error: 'Failed to get stats' });
     }
 });
 

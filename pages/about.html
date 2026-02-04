@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=15">
     <style>
         .about-hero {
             padding: 160px 0 80px;
@@ -119,6 +119,22 @@
                 <a href="about.html" class="nav-link active">О нас</a>
             </nav>
             <div class="header-actions">
+                <div class="notifications-wrapper hidden" id="notificationsWrapper">
+                    <button class="notifications-btn" id="notificationsBtn" aria-label="Уведомления">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notifications-badge hidden" id="notificationsBadge">0</span>
+                    </button>
+                    <div class="notifications-dropdown glass hidden" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>Уведомления</h3>
+                            <button onclick="Notifications.markAllAsRead()">Прочитать все</button>
+                        </div>
+                        <div class="notifications-list" id="notificationsList"></div>
+                    </div>
+                </div>
                 <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
                     <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -159,76 +175,29 @@
             <a href="categories.html" class="mobile-nav-link">Категории</a>
             <a href="about.html" class="mobile-nav-link active">О нас</a>
         </nav>
+        <div class="mobile-auth" id="mobileAuth">
+            <button class="btn btn-ghost btn-full" id="mobileLoginBtn" onclick="Modals.showLoginModal(); document.getElementById('mobileMenu').classList.remove('active');">Войти</button>
+            <button class="btn btn-primary btn-full" id="mobileRegisterBtn" onclick="Modals.showRegisterModal(); document.getElementById('mobileMenu').classList.remove('active');">Регистрация</button>
+        </div>
+        <div class="mobile-user hidden" id="mobileUser">
+            <a href="profile.html" class="btn btn-ghost btn-full">Профиль</a>
+            <a href="admin.html" class="btn btn-ghost btn-full mobile-admin-only hidden" id="mobileAdminLink">Админ-панель</a>
+            <button class="btn btn-outline btn-full" id="mobileLogoutBtn" onclick="Auth.logout(); document.getElementById('mobileMenu').classList.remove('active');">Выйти</button>
+        </div>
     </div>
 
     <main>
         <section class="about-hero">
             <div class="container">
-                <h1>О <span class="gradient-text">Gammy Blog</span></h1>
-                <p>Мы создаём качественный контент о технологиях, дизайне и инновациях, чтобы вдохновлять и обучать</p>
+                <h1 id="aboutHeroTitle">&nbsp;</h1>
+                <p id="aboutHeroSubtitle">&nbsp;</p>
             </div>
         </section>
 
         <section class="about-content">
             <div class="container">
-                <!-- Dynamic content from admin panel -->
+                <!-- All content loaded dynamically from admin panel -->
                 <div class="about-dynamic-content"></div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">50+</div>
-                        <div class="stat-label">Статей опубликовано</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">10K+</div>
-                        <div class="stat-label">Читателей в месяц</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">500+</div>
-                        <div class="stat-label">Комментариев</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">2024</div>
-                        <div class="stat-label">Год основания</div>
-                    </div>
-                </div>
-
-                <div class="about-section">
-                    <h2>Наша миссия</h2>
-                    <p>Gammy Blog был создан с одной целью — делиться знаниями и опытом с теми, кто стремится развиваться в сфере технологий и дизайна. Мы верим, что качественный контент может изменить жизнь человека, открыв новые возможности и перспективы.</p>
-                    <p>Каждая наша статья — это результат тщательного исследования и практического опыта. Мы не просто пишем о трендах, мы глубоко погружаемся в каждую тему, чтобы предоставить нашим читателям действительно ценную информацию.</p>
-                </div>
-
-                <div class="about-section">
-                    <h2>Наши ценности</h2>
-                    <p><strong>Качество превыше количества.</strong> Мы публикуем только те материалы, в которых уверены на 100%. Каждая статья проходит строгую редактуру и проверку фактов.</p>
-                    <p><strong>Практичность.</strong> Мы фокусируемся на информации, которую можно применить на практике. Теория важна, но практические навыки — бесценны.</p>
-                    <p><strong>Сообщество.</strong> Мы ценим каждого читателя и стремимся создать пространство для конструктивного диалога и обмена опытом.</p>
-                </div>
-
-                <div class="about-section">
-                    <h2>Наша команда</h2>
-                    <div class="team-grid">
-                        <div class="team-card">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=alex" alt="Алексей" class="team-avatar">
-                            <h3 class="team-name">Алексей Иванов</h3>
-                            <div class="team-role">Главный редактор</div>
-                            <p class="team-bio">10+ лет опыта в IT. Специализируется на технологиях и разработке.</p>
-                        </div>
-                        <div class="team-card">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=maria" alt="Мария" class="team-avatar">
-                            <h3 class="team-name">Мария Петрова</h3>
-                            <div class="team-role">Дизайн-эксперт</div>
-                            <p class="team-bio">UI/UX дизайнер с опытом работы в крупных продуктовых компаниях.</p>
-                        </div>
-                        <div class="team-card">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=dmitry" alt="Дмитрий" class="team-avatar">
-                            <h3 class="team-name">Дмитрий Сидоров</h3>
-                            <div class="team-role">Бизнес-аналитик</div>
-                            <p class="team-bio">Эксперт в области стартапов и предпринимательства.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </main>
@@ -254,11 +223,8 @@
                 </div>
                 <div class="footer-section">
                     <h4 class="footer-title">Категории</h4>
-                    <nav class="footer-nav">
-                        <a href="categories.html?cat=tech">Технологии</a>
-                        <a href="categories.html?cat=design">Дизайн</a>
-                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
-                        <a href="categories.html?cat=business">Бизнес</a>
+                    <nav class="footer-nav footer-categories-nav">
+                        <!-- Loaded dynamically from API -->
                     </nav>
                 </div>
                 <div class="footer-section">
@@ -281,7 +247,60 @@
         <span class="toast-message" id="toastMessage"></span>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/app.js"></script>
+    <script src="../js/api.js?v=11"></script>
+    <script src="../js/app.js?v=20"></script>
+    <script>
+        // Load ALL content from settings
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const settings = await API.getSettings();
+
+                // Update hero
+                if (settings.aboutTitle) {
+                    document.getElementById('aboutHeroTitle').childNodes[0].textContent = settings.aboutTitle + ' ';
+                }
+                if (settings.aboutTitleHighlight) {
+                    document.getElementById('aboutHeroHighlight').textContent = settings.aboutTitleHighlight;
+                }
+                if (settings.aboutSubtitle) {
+                    document.getElementById('aboutHeroSubtitle').textContent = settings.aboutSubtitle;
+                } else {
+                    document.getElementById('aboutHeroSubtitle').textContent = '';
+                }
+
+                // Load full page content (HTML)
+                const contentDiv = document.querySelector('.about-dynamic-content');
+                if (contentDiv && settings.aboutContent) {
+                    contentDiv.innerHTML = settings.aboutContent;
+                } else if (contentDiv) {
+                    // Default content if nothing is set
+                    contentDiv.innerHTML = `
+                        <div class="about-section" style="text-align: center; padding: 60px 20px;">
+                            <p style="color: var(--text-muted);">Контент страницы не настроен.</p>
+                            <p style="color: var(--text-muted); font-size: 14px;">Перейдите в Админ-панель → Контент страниц → О нас</p>
+                        </div>
+                    `;
+                }
+
+                // Update SEO
+                if (settings.aboutSeoTitle) {
+                    document.title = settings.aboutSeoTitle;
+                }
+                if (settings.aboutSeoDescription) {
+                    document.querySelector('meta[name="description"]').content = settings.aboutSeoDescription;
+                }
+                if (settings.aboutSeoKeywords) {
+                    document.querySelector('meta[name="keywords"]').content = settings.aboutSeoKeywords;
+                }
+            } catch (err) {
+                console.error('Settings load error:', err);
+                document.querySelector('.about-dynamic-content').innerHTML = `
+                    <div class="about-section" style="text-align: center; padding: 60px 20px;">
+                        <p style="color: var(--text-muted);">Ошибка загрузки контента</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>

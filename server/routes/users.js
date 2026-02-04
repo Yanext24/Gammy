@@ -21,7 +21,7 @@ router.get('/', authMiddleware, adminMiddleware, (req, res) => {
     }
 });
 
-// Get user by ID
+// Get user by ID (public profile)
 router.get('/:id', (req, res) => {
     try {
         const db = getDb();
@@ -31,6 +31,16 @@ router.get('/:id', (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Get user stats
+        const postsCount = db.prepare('SELECT COUNT(*) as count FROM posts WHERE author_id = ?').get(req.params.id);
+        const likesCount = db.prepare(`
+            SELECT COUNT(*) as count FROM post_likes
+            WHERE post_id IN (SELECT id FROM posts WHERE author_id = ?)
+        `).get(req.params.id);
+
+        user.posts_count = postsCount?.count || 0;
+        user.likes_received = likesCount?.count || 0;
+
         res.json(user);
     } catch (err) {
         console.error('Get user error:', err);
@@ -38,10 +48,58 @@ router.get('/:id', (req, res) => {
     }
 });
 
+// Get user's posts
+router.get('/:id/posts', (req, res) => {
+    try {
+        const db = getDb();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        const posts = db.prepare(`
+            SELECT p.*,
+                   (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as likes_count,
+                   (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comments_count
+            FROM posts p
+            WHERE p.author_id = ?
+            ORDER BY p.created_at DESC
+            LIMIT ? OFFSET ?
+        `).all(req.params.id, limit, offset);
+
+        const total = db.prepare('SELECT COUNT(*) as count FROM posts WHERE author_id = ?').get(req.params.id);
+
+        // Parse JSON fields
+        posts.forEach(post => {
+            post.images = JSON.parse(post.images || '[]');
+            post.tags = JSON.parse(post.tags || '[]');
+        });
+
+        res.json({
+            posts,
+            pagination: {
+                page,
+                limit,
+                total: total?.count || 0,
+                pages: Math.ceil((total?.count || 0) / limit)
+            }
+        });
+    } catch (err) {
+        console.error('Get user posts error:', err);
+        res.status(500).json({ error: 'Failed to get user posts' });
+    }
+});
+
 // Update user role (admin only)
 router.put('/:id/role', authMiddleware, adminMiddleware, (req, res) => {
     try {
         const { role } = req.body;
+
+        // Validate role
+        const allowedRoles = ['user', 'admin'];
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ error: 'Invalid role. Allowed: user, admin' });
+        }
+
         const db = getDb();
 
         db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, req.params.id);

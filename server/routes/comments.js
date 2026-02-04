@@ -5,6 +5,7 @@
 const express = require('express');
 const { getDb } = require('../db');
 const { authMiddleware, optionalAuth, adminMiddleware } = require('../middleware/auth');
+const { createNotification } = require('./notifications');
 
 const router = express.Router();
 
@@ -55,6 +56,21 @@ router.post('/post/:postId', optionalAuth, (req, res) => {
             LEFT JOIN users u ON c.user_id = u.id
             WHERE c.id = ?
         `).get(result.lastInsertRowid);
+
+        // Create notification for post owner
+        const post = db.prepare('SELECT author_id, content FROM posts WHERE id = ?').get(req.params.postId);
+        if (post && post.author_id && post.author_id !== (req.user?.id || null)) {
+            const preview = post.content.substring(0, 50) + (post.content.length > 50 ? '...' : '');
+            createNotification(db, {
+                userId: post.author_id,
+                type: 'comment_post',
+                sourceUserId: req.user?.id,
+                sourceUserName: name,
+                postId: parseInt(req.params.postId),
+                commentId: result.lastInsertRowid,
+                message: `${name} прокомментировал ваш пост: "${preview}"`
+            });
+        }
 
         res.json(comment);
     } catch (err) {
@@ -133,6 +149,20 @@ router.post('/article/:articleId', optionalAuth, (req, res) => {
             LEFT JOIN users u ON c.user_id = u.id
             WHERE c.id = ?
         `).get(result.lastInsertRowid);
+
+        // Create notification for article author
+        const article = db.prepare('SELECT author_id, title FROM articles WHERE id = ?').get(req.params.articleId);
+        if (article && article.author_id && article.author_id !== (req.user?.id || null)) {
+            createNotification(db, {
+                userId: article.author_id,
+                type: 'comment_article',
+                sourceUserId: req.user?.id,
+                sourceUserName: name,
+                articleId: parseInt(req.params.articleId),
+                commentId: result.lastInsertRowid,
+                message: `${name} прокомментировал статью "${article.title}"`
+            });
+        }
 
         res.json(comment);
     } catch (err) {

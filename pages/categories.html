@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=15">
     <style>
         .categories-hero {
             padding: 100px 0 40px;
@@ -93,6 +93,22 @@
                 <a href="about.html" class="nav-link">О нас</a>
             </nav>
             <div class="header-actions">
+                <div class="notifications-wrapper hidden" id="notificationsWrapper">
+                    <button class="notifications-btn" id="notificationsBtn" aria-label="Уведомления">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notifications-badge hidden" id="notificationsBadge">0</span>
+                    </button>
+                    <div class="notifications-dropdown glass hidden" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>Уведомления</h3>
+                            <button onclick="Notifications.markAllAsRead()">Прочитать все</button>
+                        </div>
+                        <div class="notifications-list" id="notificationsList"></div>
+                    </div>
+                </div>
                 <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
                     <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -133,13 +149,22 @@
             <a href="categories.html" class="mobile-nav-link active">Категории</a>
             <a href="about.html" class="mobile-nav-link">О нас</a>
         </nav>
+        <div class="mobile-auth" id="mobileAuth">
+            <button class="btn btn-ghost btn-full" id="mobileLoginBtn" onclick="Modals.showLoginModal(); document.getElementById('mobileMenu').classList.remove('active');">Войти</button>
+            <button class="btn btn-primary btn-full" id="mobileRegisterBtn" onclick="Modals.showRegisterModal(); document.getElementById('mobileMenu').classList.remove('active');">Регистрация</button>
+        </div>
+        <div class="mobile-user hidden" id="mobileUser">
+            <a href="profile.html" class="btn btn-ghost btn-full">Профиль</a>
+            <a href="admin.html" class="btn btn-ghost btn-full mobile-admin-only hidden" id="mobileAdminLink">Админ-панель</a>
+            <button class="btn btn-outline btn-full" id="mobileLogoutBtn" onclick="Auth.logout(); document.getElementById('mobileMenu').classList.remove('active');">Выйти</button>
+        </div>
     </div>
 
     <main>
         <section class="categories-hero">
             <div class="container">
-                <h1>Все <span class="gradient-text">категории</span></h1>
-                <p>Выберите интересующую вас тему и изучайте качественный контент</p>
+                <h1 id="categoriesHeroTitle">&nbsp;</h1>
+                <p id="categoriesHeroSubtitle">&nbsp;</p>
             </div>
         </section>
 
@@ -183,11 +208,8 @@
                 </div>
                 <div class="footer-section">
                     <h4 class="footer-title">Категории</h4>
-                    <nav class="footer-nav">
-                        <a href="categories.html?cat=tech">Технологии</a>
-                        <a href="categories.html?cat=design">Дизайн</a>
-                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
-                        <a href="categories.html?cat=business">Бизнес</a>
+                    <nav class="footer-nav footer-categories-nav">
+                        <!-- Loaded dynamically from API -->
                     </nav>
                 </div>
                 <div class="footer-section">
@@ -210,8 +232,8 @@
         <span class="toast-message" id="toastMessage"></span>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/app.js"></script>
+    <script src="../js/api.js?v=11"></script>
+    <script src="../js/app.js?v=20"></script>
     <script>
         // Categories page - dynamic loading with API
         let categories = [];
@@ -222,6 +244,31 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                // Load settings for page content
+                const settings = await API.getSettings();
+
+                // Update hero
+                if (settings.categoriesTitle) {
+                    document.getElementById('categoriesHeroTitle').childNodes[0].textContent = settings.categoriesTitle + ' ';
+                }
+                if (settings.categoriesTitleHighlight) {
+                    document.getElementById('categoriesHeroHighlight').textContent = settings.categoriesTitleHighlight;
+                }
+                if (settings.categoriesSubtitle) {
+                    document.getElementById('categoriesHeroSubtitle').textContent = settings.categoriesSubtitle;
+                }
+
+                // Update SEO
+                if (settings.categoriesSeoTitle) {
+                    document.title = settings.categoriesSeoTitle;
+                }
+                if (settings.categoriesSeoDescription) {
+                    document.querySelector('meta[name="description"]').content = settings.categoriesSeoDescription;
+                }
+                if (settings.categoriesSeoKeywords) {
+                    document.querySelector('meta[name="keywords"]').content = settings.categoriesSeoKeywords;
+                }
+
                 categories = await API.getCategories();
                 articles = await API.getArticles();
 
@@ -342,19 +389,40 @@
         function createArticleCard(article) {
             const card = document.createElement('article');
             card.className = 'article-card glass';
+            const authorInitial = article.author_name ? article.author_name.charAt(0).toUpperCase() : 'A';
+
+            // Check if article has an image
+            const emojis = ['📝', '✨', '🎨', '💡', '🚀', '🌟', '🎯', '💬', '📚', '🔥'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const hasImage = article.image && article.image.trim().length > 0;
+            const imageContent = hasImage
+                ? `<img src="${article.image}" alt="${article.title}" loading="lazy">`
+                : `<div class="article-image-placeholder">${randomEmoji}</div>`;
+
             card.innerHTML = `
-                <a href="article.html?slug=${article.slug}" class="article-image-link">
-                    <img src="${article.image || 'https://via.placeholder.com/400x250'}" alt="${article.title}" class="article-image" loading="lazy">
+                <a href="article.html?slug=${article.slug}" class="article-image">
+                    ${imageContent}
+                    <span class="article-category">${UI.getCategoryName(article.category)}</span>
                 </a>
                 <div class="article-content">
-                    <a href="article.html?slug=${article.slug}" class="article-category" style="color: ${UI.getCategoryColor(article.category)}">${UI.getCategoryName(article.category)}</a>
                     <a href="article.html?slug=${article.slug}" class="article-title-link">
                         <h3 class="article-title">${article.title}</h3>
                     </a>
                     <p class="article-excerpt">${UI.truncate(article.excerpt, 120)}</p>
                     <div class="article-meta">
-                        <span class="article-date">${UI.formatDate(article.created_at)}</span>
-                        <span class="article-views">${article.views || 0} просмотров</span>
+                        <div class="article-author">
+                            <div class="author-avatar">${authorInitial}</div>
+                            <div class="author-info">
+                                <span class="author-name">${article.author_name || 'Admin'}</span>
+                                <span class="article-date">${UI.formatDate(article.created_at)}</span>
+                            </div>
+                        </div>
+                        <div class="article-stats">
+                            <span class="stat-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                ${article.views || 0}
+                            </span>
+                        </div>
                     </div>
                 </div>
             `;

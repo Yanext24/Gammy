@@ -58,11 +58,12 @@ router.post('/login', (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
+            return res.status(400).json({ error: 'Email or login and password required' });
         }
 
         const db = getDb();
-        const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        // Allow login by email OR username (name)
+        const user = db.prepare('SELECT * FROM users WHERE email = ? OR name = ?').get(email, email);
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -93,11 +94,28 @@ router.post('/login', (req, res) => {
 router.get('/me', authMiddleware, (req, res) => {
     try {
         const db = getDb();
-        const user = db.prepare('SELECT id, email, name, role, avatar, bio, created_at FROM users WHERE id = ?').get(req.user.id);
+        const user = db.prepare('SELECT id, email, name, role, avatar, bio, notify_comments, notify_newsletter, created_at FROM users WHERE id = ?').get(req.user.id);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
+
+        // Get user stats
+        const likesCount = db.prepare(`
+            SELECT COUNT(*) as count FROM post_likes
+            WHERE post_id IN (SELECT id FROM posts WHERE author_id = ?)
+        `).get(req.user.id);
+
+        const commentsCount = db.prepare(`
+            SELECT COUNT(*) as count FROM post_comments WHERE user_id = ?
+        `).get(req.user.id);
+
+        const articleCommentsCount = db.prepare(`
+            SELECT COUNT(*) as count FROM article_comments WHERE user_id = ?
+        `).get(req.user.id);
+
+        user.likes_count = likesCount?.count || 0;
+        user.comments_count = (commentsCount?.count || 0) + (articleCommentsCount?.count || 0);
 
         res.json(user);
     } catch (err) {
@@ -109,15 +127,58 @@ router.get('/me', authMiddleware, (req, res) => {
 // Update current user
 router.put('/me', authMiddleware, (req, res) => {
     try {
-        const { name, bio, avatar } = req.body;
+        const { name, bio, avatar, notify_comments, notify_newsletter } = req.body;
         const db = getDb();
 
-        db.prepare(`
-            UPDATE users SET name = ?, bio = ?, avatar = ?
-            WHERE id = ?
-        `).run(name, bio, avatar, req.user.id);
+        // Build update query dynamically
+        const updates = [];
+        const params = [];
 
-        const user = db.prepare('SELECT id, email, name, role, avatar, bio, created_at FROM users WHERE id = ?').get(req.user.id);
+        if (name !== undefined) {
+            updates.push('name = ?');
+            params.push(name);
+        }
+        if (bio !== undefined) {
+            updates.push('bio = ?');
+            params.push(bio);
+        }
+        if (avatar !== undefined) {
+            updates.push('avatar = ?');
+            params.push(avatar);
+        }
+        if (notify_comments !== undefined) {
+            updates.push('notify_comments = ?');
+            params.push(notify_comments ? 1 : 0);
+        }
+        if (notify_newsletter !== undefined) {
+            updates.push('notify_newsletter = ?');
+            params.push(notify_newsletter ? 1 : 0);
+        }
+
+        if (updates.length > 0) {
+            params.push(req.user.id);
+            db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+        }
+
+        const user = db.prepare('SELECT id, email, name, role, avatar, bio, notify_comments, notify_newsletter, created_at FROM users WHERE id = ?').get(req.user.id);
+
+        // Get user stats
+        const likesCount = db.prepare(`
+            SELECT COUNT(*) as count FROM post_likes
+            WHERE post_id IN (SELECT id FROM posts WHERE author_id = ?)
+        `).get(req.user.id);
+
+        const commentsCount = db.prepare(`
+            SELECT COUNT(*) as count FROM post_comments WHERE user_id = ?
+        `).get(req.user.id);
+
+        const articleCommentsCount = db.prepare(`
+            SELECT COUNT(*) as count FROM article_comments WHERE user_id = ?
+        `).get(req.user.id);
+
+        user.likes_count = likesCount?.count || 0;
+        user.comments_count = (commentsCount?.count || 0) + (articleCommentsCount?.count || 0);
+
         res.json(user);
     } catch (err) {
         console.error('Update user error:', err);

@@ -45,13 +45,27 @@ router.get('/:slug', (req, res) => {
 // Create category (admin only)
 router.post('/', authMiddleware, adminMiddleware, (req, res) => {
     try {
-        const { name, slug, color, icon, show_on_home } = req.body;
+        const { name, slug, color, icon, show_on_home, show_in_footer } = req.body;
         const db = getDb();
 
+        // Валидация полей
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        if (!slug || !slug.trim()) {
+            return res.status(400).json({ error: 'Slug is required' });
+        }
+
+        // Проверка уникальности slug
+        const existing = db.prepare('SELECT id FROM categories WHERE slug = ?').get(slug);
+        if (existing) {
+            return res.status(400).json({ error: 'Category with this slug already exists' });
+        }
+
         const result = db.prepare(`
-            INSERT INTO categories (name, slug, color, icon, show_on_home)
-            VALUES (?, ?, ?, ?, ?)
-        `).run(name, slug, color || '#6366f1', icon, show_on_home ? 1 : 0);
+            INSERT INTO categories (name, slug, color, icon, show_on_home, show_in_footer)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(name.trim(), slug.trim(), color || '#6366f1', icon, show_on_home ? 1 : 0, show_in_footer !== false && show_in_footer !== 0 ? 1 : 0);
 
         const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(result.lastInsertRowid);
         res.json(category);
@@ -64,13 +78,13 @@ router.post('/', authMiddleware, adminMiddleware, (req, res) => {
 // Update category (admin only)
 router.put('/:id', authMiddleware, adminMiddleware, (req, res) => {
     try {
-        const { name, slug, color, icon, show_on_home } = req.body;
+        const { name, slug, color, icon, show_on_home, show_in_footer } = req.body;
         const db = getDb();
 
         db.prepare(`
-            UPDATE categories SET name = ?, slug = ?, color = ?, icon = ?, show_on_home = ?
+            UPDATE categories SET name = ?, slug = ?, color = ?, icon = ?, show_on_home = ?, show_in_footer = ?
             WHERE id = ?
-        `).run(name, slug, color, icon, show_on_home ? 1 : 0, req.params.id);
+        `).run(name, slug, color, icon, show_on_home ? 1 : 0, show_in_footer ? 1 : 0, req.params.id);
 
         const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
         res.json(category);

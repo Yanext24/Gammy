@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=15">
 </head>
 <body>
     <!-- Header -->
@@ -30,6 +30,22 @@
                 <a href="about.html" class="nav-link">О нас</a>
             </nav>
             <div class="header-actions">
+                <div class="notifications-wrapper hidden" id="notificationsWrapper">
+                    <button class="notifications-btn" id="notificationsBtn" aria-label="Уведомления">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notifications-badge hidden" id="notificationsBadge">0</span>
+                    </button>
+                    <div class="notifications-dropdown glass hidden" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>Уведомления</h3>
+                            <button onclick="Notifications.markAllAsRead()">Прочитать все</button>
+                        </div>
+                        <div class="notifications-list" id="notificationsList"></div>
+                    </div>
+                </div>
                 <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
                     <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -70,6 +86,15 @@
             <a href="categories.html" class="mobile-nav-link">Категории</a>
             <a href="about.html" class="mobile-nav-link">О нас</a>
         </nav>
+        <div class="mobile-auth" id="mobileAuth">
+            <button class="btn btn-ghost btn-full" id="mobileLoginBtn" onclick="Modals.showLoginModal(); document.getElementById('mobileMenu').classList.remove('active');">Войти</button>
+            <button class="btn btn-primary btn-full" id="mobileRegisterBtn" onclick="Modals.showRegisterModal(); document.getElementById('mobileMenu').classList.remove('active');">Регистрация</button>
+        </div>
+        <div class="mobile-user hidden" id="mobileUser">
+            <a href="profile.html" class="btn btn-ghost btn-full">Профиль</a>
+            <a href="admin.html" class="btn btn-ghost btn-full mobile-admin-only hidden" id="mobileAdminLink">Админ-панель</a>
+            <button class="btn btn-outline btn-full" id="mobileLogoutBtn" onclick="Auth.logout(); document.getElementById('mobileMenu').classList.remove('active');">Выйти</button>
+        </div>
     </div>
 
     <!-- Post Page -->
@@ -129,11 +154,8 @@
                 </div>
                 <div class="footer-section">
                     <h4 class="footer-title">Категории</h4>
-                    <nav class="footer-nav">
-                        <a href="categories.html?cat=tech">Технологии</a>
-                        <a href="categories.html?cat=design">Дизайн</a>
-                        <a href="categories.html?cat=lifestyle">Лайфстайл</a>
-                        <a href="categories.html?cat=business">Бизнес</a>
+                    <nav class="footer-nav footer-categories-nav">
+                        <!-- Loaded dynamically from API -->
                     </nav>
                 </div>
                 <div class="footer-section">
@@ -156,23 +178,41 @@
         <span class="toast-message" id="toastMessage"></span>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/app.js"></script>
-    <script src="../js/feed.js"></script>
+    <script src="../js/api.js?v=11"></script>
+    <script src="../js/app.js?v=20"></script>
+    <script src="../js/feed.js?v=7"></script>
     <script>
         let currentPost = null;
 
+        // Wait for Auth to be initialized
+        async function waitForAuth() {
+            let attempts = 0;
+            while (!window.Auth?._initialized && attempts < 100) {
+                await new Promise(r => setTimeout(r, 50));
+                attempts++;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
+            // Wait for Auth initialization from app.js
+            await waitForAuth();
+
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
+            const postSlug = urlParams.get('slug');
 
-            if (!postId) {
+            if (!postId && !postSlug) {
                 window.location.href = '../index.html';
                 return;
             }
 
             try {
-                currentPost = await API.getPost(postId);
+                // Load by slug if available, otherwise by id
+                if (postSlug) {
+                    currentPost = await API.getPostBySlug(postSlug);
+                } else {
+                    currentPost = await API.getPost(postId);
+                }
                 renderPost(currentPost);
             } catch (err) {
                 document.getElementById('postFull').innerHTML = `
@@ -198,28 +238,9 @@
             // Format content with links
             const formattedContent = formatContent(post.content);
 
-            // Parse images
-            let images = [];
-            try {
-                images = post.images ? JSON.parse(post.images) : [];
-            } catch (e) {
-                images = [];
-            }
-
-            // Parse tags
-            let tags = [];
-            try {
-                tags = post.tags ? JSON.parse(post.tags) : [];
-            } catch (e) {
-                tags = [];
-            }
-
-            // Images grid class
-            let imagesClass = '';
-            if (images.length === 1) imagesClass = 'single';
-            else if (images.length === 2) imagesClass = 'double';
-            else if (images.length === 3) imagesClass = 'triple';
-            else if (images.length > 3) imagesClass = 'quad';
+            // Get images and tags (API returns arrays)
+            let images = Array.isArray(post.images) ? post.images : [];
+            let tags = Array.isArray(post.tags) ? post.tags : [];
 
             // Render post
             document.getElementById('postFull').innerHTML = `
@@ -232,13 +253,7 @@
                 </div>
                 <div class="post-full-content">
                     <div class="post-text">${formattedContent}</div>
-                    ${images.length > 0 ? `
-                        <div class="post-images ${imagesClass}" style="margin-top: 20px;">
-                            ${images.map(img => `
-                                <img src="${img}" class="post-image" onclick="window.open('${img}', '_blank')" alt="">
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                    ${images.length > 0 ? renderImageGallery(images, post.id) : ''}
                     ${tags.length > 0 ? `
                         <div class="post-tags" style="margin-top: 20px;">
                             ${tags.map(tag => `
@@ -252,7 +267,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
-                        <span id="postLikeCount">${post.likes || 0}</span>
+                        <span id="postLikeCount">${post.likes_count || 0}</span>
                     </button>
                     <button class="post-action-btn" onclick="shareCurrentPost()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -287,10 +302,135 @@
                 .replace(/\n/g, '<br>');
         }
 
+        // Telegram-style image gallery
+        function getImagesClass(count) {
+            if (count === 1) return 'single';
+            if (count === 2) return 'double';
+            if (count === 3) return 'triple';
+            if (count === 4) return 'quad';
+            return 'many';
+        }
+
+        function renderImageGallery(images, postId) {
+            const count = images.length;
+            const galleryClass = getImagesClass(count);
+            const displayImages = images.slice(0, 4);
+            const extraCount = count - 4;
+
+            let html = `<div class="post-images ${galleryClass}" style="margin-top: 20px;" data-post-id="${postId}" data-images='${JSON.stringify(images)}'>`;
+
+            displayImages.forEach((img, index) => {
+                const isLast = index === 3 && extraCount > 0;
+                if (isLast) {
+                    html += `
+                        <div class="post-image-wrapper has-more" data-more="+${extraCount}" onclick="openGallery(${postId}, ${index})">
+                            <img src="${img}" alt="" class="post-image" loading="lazy">
+                        </div>`;
+                } else {
+                    html += `<img src="${img}" alt="" class="post-image" onclick="openGallery(${postId}, ${index})" loading="lazy">`;
+                }
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        function openGallery(postId, startIndex = 0) {
+            const gallery = document.querySelector(`.post-images[data-post-id="${postId}"]`);
+            if (!gallery) return;
+
+            const images = JSON.parse(gallery.dataset.images || '[]');
+            if (images.length === 0) return;
+
+            showLightbox(images, startIndex);
+        }
+
+        let lightboxImages = [];
+        let lightboxCurrent = 0;
+
+        function showLightbox(images, currentIndex = 0) {
+            lightboxImages = images;
+            lightboxCurrent = currentIndex;
+
+            const existing = document.getElementById('imageLightbox');
+            if (existing) existing.remove();
+
+            const lightbox = document.createElement('div');
+            lightbox.id = 'imageLightbox';
+            lightbox.className = 'lightbox-overlay';
+            lightbox.innerHTML = `
+                <div class="lightbox-content">
+                    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+                    ${images.length > 1 ? `
+                        <button class="lightbox-nav lightbox-prev" onclick="lightboxPrev()">&#10094;</button>
+                        <button class="lightbox-nav lightbox-next" onclick="lightboxNext()">&#10095;</button>
+                    ` : ''}
+                    <img src="${images[currentIndex]}" alt="" class="lightbox-image" id="lightboxImage">
+                    ${images.length > 1 ? `
+                        <div class="lightbox-counter">
+                            <span id="lightboxCurrent">${currentIndex + 1}</span> / ${images.length}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+
+            document.addEventListener('keydown', lightboxKeyHandler);
+
+            document.body.appendChild(lightbox);
+            document.body.style.overflow = 'hidden';
+
+            requestAnimationFrame(() => lightbox.classList.add('active'));
+        }
+
+        function lightboxKeyHandler(e) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxPrev();
+            if (e.key === 'ArrowRight') lightboxNext();
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('imageLightbox');
+            if (lightbox) {
+                lightbox.classList.remove('active');
+                setTimeout(() => lightbox.remove(), 300);
+                document.body.style.overflow = '';
+                document.removeEventListener('keydown', lightboxKeyHandler);
+            }
+        }
+
+        function lightboxPrev() {
+            lightboxCurrent = (lightboxCurrent - 1 + lightboxImages.length) % lightboxImages.length;
+            document.getElementById('lightboxImage').src = lightboxImages[lightboxCurrent];
+            const counter = document.getElementById('lightboxCurrent');
+            if (counter) counter.textContent = lightboxCurrent + 1;
+        }
+
+        function lightboxNext() {
+            lightboxCurrent = (lightboxCurrent + 1) % lightboxImages.length;
+            document.getElementById('lightboxImage').src = lightboxImages[lightboxCurrent];
+            const counter = document.getElementById('lightboxCurrent');
+            if (counter) counter.textContent = lightboxCurrent + 1;
+        }
+
         async function togglePostLike(postId) {
             try {
                 const result = await API.likePost(postId);
-                document.getElementById('postLikeCount').textContent = result.likes;
+                document.getElementById('postLikeCount').textContent = result.likes_count;
+
+                // Update button state
+                const likeBtn = document.querySelector('.post-full-actions .post-action-btn');
+                const svg = likeBtn?.querySelector('svg');
+                if (result.liked) {
+                    likeBtn?.classList.add('liked');
+                    svg?.setAttribute('fill', 'currentColor');
+                } else {
+                    likeBtn?.classList.remove('liked');
+                    svg?.setAttribute('fill', 'none');
+                }
             } catch (err) {
                 UI.showToast(err.message || 'Войдите, чтобы лайкать', 'error');
             }

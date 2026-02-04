@@ -10,10 +10,13 @@ const Feed = {
     pendingImages: [],
 
     async init() {
+        console.log('[Feed] init() called');
+        console.log('[Feed] postsFeed element:', document.getElementById('postsFeed'));
+        console.log('[Feed] feedPosts element:', document.getElementById('feedPosts'));
         await this.loadPosts();
         this.loadTopTags();
         this.loadTopAuthors();
-        this.initCreatePost();
+        await this.initCreatePost();
         this.initSearch();
     },
 
@@ -75,15 +78,13 @@ const Feed = {
 
         return `
             <article class="post-card glass" data-post-id="${post.id}">
-                <div class="post-header">
-                    <div class="post-author">
-                        <div class="post-avatar">
-                            ${post.author_name ? post.author_name.charAt(0).toUpperCase() : 'A'}
-                        </div>
-                        <div class="post-author-info">
-                            <span class="post-author-name">${post.author_name || 'Аноним'}</span>
-                            <span class="post-date">${UI.timeAgo(post.created_at)}</span>
-                        </div>
+                <div class="post-card-header">
+                    <div class="post-author-avatar" onclick="Feed.showUserProfile(${post.author_id})" style="cursor:pointer;">
+                        ${post.author_avatar ? `<img src="${post.author_avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (post.author_name ? post.author_name.charAt(0).toUpperCase() : 'A')}
+                    </div>
+                    <div class="post-author-info">
+                        <span class="post-author-name" onclick="Feed.showUserProfile(${post.author_id})" style="cursor:pointer;">${post.author_name || 'Аноним'}</span>
+                        <span class="post-meta">${UI.timeAgo(post.created_at)}</span>
                     </div>
                     ${canEdit ? `
                         <div class="post-menu">
@@ -101,42 +102,33 @@ const Feed = {
                     ` : ''}
                 </div>
 
-                <div class="post-content">
-                    <p>${this.formatContent(post.content)}</p>
+                <div class="post-card-content">
+                    <div class="post-text">${this.formatContent(post.content)}</div>
+
+                    ${images.length > 0 ? this.renderImageGallery(images, post.id) : ''}
+
+                    ${tags.length > 0 ? `
+                        <div class="post-tags">
+                            ${tags.map(tag => `<a href="?tag=${encodeURIComponent(tag)}" class="post-tag">#${tag}</a>`).join('')}
+                        </div>
+                    ` : ''}
                 </div>
 
-                ${images.length > 0 ? `
-                    <div class="post-images ${images.length > 1 ? 'post-images-grid' : ''}">
-                        ${images.map(img => `<img src="${img}" alt="" class="post-image" onclick="Feed.openImage('${img}')">`).join('')}
-                    </div>
-                ` : ''}
-
-                ${tags.length > 0 ? `
-                    <div class="post-tags">
-                        ${tags.map(tag => `<a href="?tag=${encodeURIComponent(tag)}" class="post-tag">#${tag}</a>`).join('')}
-                    </div>
-                ` : ''}
-
-                <div class="post-stats">
-                    <span>${post.views || 0} просмотров</span>
-                    <span>${post.comments_count || 0} комментариев</span>
-                </div>
-
-                <div class="post-actions">
-                    <button class="post-action-btn ${post.user_liked ? 'active' : ''}" onclick="Feed.toggleLike('${post.id}')">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="${post.user_liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                <div class="post-card-footer">
+                    <button class="post-action-btn ${post.user_liked ? 'liked' : ''}" onclick="Feed.toggleLike('${post.id}')">
+                        <svg viewBox="0 0 24 24" fill="${post.user_liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                         <span>${post.likes_count || 0}</span>
                     </button>
-                    <a href="pages/post.html?slug=${post.slug}" class="post-action-btn">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <a href="pages/post.html?id=${post.id}" class="post-action-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
                         <span>${post.comments_count || 0}</span>
                     </a>
-                    <button class="post-action-btn" onclick="Feed.sharePost('${post.slug}')">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="post-action-btn" onclick="Feed.sharePost('${post.id}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="18" cy="5" r="3"></circle>
                             <circle cx="6" cy="12" r="3"></circle>
                             <circle cx="18" cy="19" r="3"></circle>
@@ -144,6 +136,7 @@ const Feed = {
                             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                         </svg>
                     </button>
+                    <span class="post-meta" style="margin-left:auto;">${post.views || 0} просмотров</span>
                 </div>
             </article>
         `;
@@ -153,6 +146,138 @@ const Feed = {
         if (!content) return '';
         return content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
                       .replace(/\n/g, '<br>');
+    },
+
+    getImagesClass(count) {
+        if (count === 1) return 'single';
+        if (count === 2) return 'double';
+        if (count === 3) return 'triple';
+        if (count === 4) return 'quad';
+        return 'many';
+    },
+
+    // Render Telegram-style image gallery
+    renderImageGallery(images, postId) {
+        const count = images.length;
+        const galleryClass = this.getImagesClass(count);
+        const displayImages = images.slice(0, 4);
+        const extraCount = count - 4;
+
+        let html = `<div class="post-images ${galleryClass}" data-post-id="${postId}" data-images='${JSON.stringify(images)}'>`;
+
+        displayImages.forEach((img, index) => {
+            const isLast = index === 3 && extraCount > 0;
+            if (isLast) {
+                html += `
+                    <div class="post-image-wrapper has-more" data-more="+${extraCount}" onclick="Feed.openGallery(${postId}, ${index})">
+                        <img src="${img}" alt="" class="post-image" loading="lazy">
+                    </div>`;
+            } else {
+                html += `<img src="${img}" alt="" class="post-image" onclick="Feed.openGallery(${postId}, ${index})" loading="lazy">`;
+            }
+        });
+
+        html += '</div>';
+        return html;
+    },
+
+    // Open gallery lightbox
+    openGallery(postId, startIndex = 0) {
+        const gallery = document.querySelector(`.post-images[data-post-id="${postId}"]`);
+        if (!gallery) return;
+
+        const images = JSON.parse(gallery.dataset.images || '[]');
+        if (images.length === 0) return;
+
+        this.showLightbox(images, startIndex);
+    },
+
+    // Show lightbox
+    showLightbox(images, currentIndex = 0) {
+        // Remove existing lightbox
+        const existing = document.getElementById('imageLightbox');
+        if (existing) existing.remove();
+
+        const lightbox = document.createElement('div');
+        lightbox.id = 'imageLightbox';
+        lightbox.className = 'lightbox-overlay';
+        lightbox.innerHTML = `
+            <div class="lightbox-content">
+                <button class="lightbox-close" onclick="Feed.closeLightbox()">&times;</button>
+                ${images.length > 1 ? `
+                    <button class="lightbox-nav lightbox-prev" onclick="Feed.lightboxPrev()">&#10094;</button>
+                    <button class="lightbox-nav lightbox-next" onclick="Feed.lightboxNext()">&#10095;</button>
+                ` : ''}
+                <img src="${images[currentIndex]}" alt="" class="lightbox-image" id="lightboxImage">
+                ${images.length > 1 ? `
+                    <div class="lightbox-counter">
+                        <span id="lightboxCurrent">${currentIndex + 1}</span> / ${images.length}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        // Store state
+        lightbox.dataset.images = JSON.stringify(images);
+        lightbox.dataset.current = currentIndex;
+
+        // Close on background click
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) this.closeLightbox();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', this.lightboxKeyHandler);
+
+        document.body.appendChild(lightbox);
+        document.body.style.overflow = 'hidden';
+
+        // Animate in
+        requestAnimationFrame(() => lightbox.classList.add('active'));
+    },
+
+    lightboxKeyHandler(e) {
+        if (e.key === 'Escape') Feed.closeLightbox();
+        if (e.key === 'ArrowLeft') Feed.lightboxPrev();
+        if (e.key === 'ArrowRight') Feed.lightboxNext();
+    },
+
+    closeLightbox() {
+        const lightbox = document.getElementById('imageLightbox');
+        if (lightbox) {
+            lightbox.classList.remove('active');
+            setTimeout(() => lightbox.remove(), 300);
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', this.lightboxKeyHandler);
+        }
+    },
+
+    lightboxPrev() {
+        const lightbox = document.getElementById('imageLightbox');
+        if (!lightbox) return;
+
+        const images = JSON.parse(lightbox.dataset.images || '[]');
+        let current = parseInt(lightbox.dataset.current);
+        current = (current - 1 + images.length) % images.length;
+
+        lightbox.dataset.current = current;
+        document.getElementById('lightboxImage').src = images[current];
+        const counter = document.getElementById('lightboxCurrent');
+        if (counter) counter.textContent = current + 1;
+    },
+
+    lightboxNext() {
+        const lightbox = document.getElementById('imageLightbox');
+        if (!lightbox) return;
+
+        const images = JSON.parse(lightbox.dataset.images || '[]');
+        let current = parseInt(lightbox.dataset.current);
+        current = (current + 1) % images.length;
+
+        lightbox.dataset.current = current;
+        document.getElementById('lightboxImage').src = images[current];
+        const counter = document.getElementById('lightboxCurrent');
+        if (counter) counter.textContent = current + 1;
     },
 
     updateLoadMoreButton() {
@@ -180,7 +305,7 @@ const Feed = {
     },
 
     // Create post form
-    initCreatePost() {
+    async initCreatePost() {
         const form = document.getElementById('createPostForm');
         const textarea = document.getElementById('postContent');
         const imageBtn = document.getElementById('addImageBtn');
@@ -188,10 +313,21 @@ const Feed = {
 
         this.pendingImages = [];
 
-        // Show/hide form based on auth
+        // Load settings to check if anonymous posting is allowed
+        let allowAnonymous = false;
+        try {
+            const settings = await API.getSettings();
+            allowAnonymous = settings.feedAllowAnonymous === true || settings.feedAllowAnonymous === 'true';
+        } catch (e) {
+            console.error('[Feed] Failed to load settings:', e);
+        }
+
+        // Show/hide form based on auth or anonymous setting
         const createPostCard = document.querySelector('.create-post-card');
         if (createPostCard) {
-            if (Auth.isLoggedIn()) {
+            const canPost = Auth.isLoggedIn() || allowAnonymous;
+
+            if (canPost) {
                 createPostCard.style.display = 'block';
 
                 // Initialize trigger button if exists
@@ -228,7 +364,13 @@ const Feed = {
                 const user = Auth.getCurrentUser();
                 const avatarEl = document.getElementById('createPostAvatar');
                 if (avatarEl && user) {
-                    avatarEl.textContent = user.name.charAt(0).toUpperCase();
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${user.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    } else {
+                        avatarEl.textContent = user.name.charAt(0).toUpperCase();
+                    }
+                } else if (avatarEl) {
+                    avatarEl.textContent = 'G'; // Guest
                 }
             } else {
                 createPostCard.innerHTML = `
@@ -378,10 +520,10 @@ const Feed = {
                 const svg = likeBtn?.querySelector('svg');
 
                 if (result.liked) {
-                    likeBtn.classList.add('active');
+                    likeBtn.classList.add('liked');
                     svg?.setAttribute('fill', 'currentColor');
                 } else {
-                    likeBtn.classList.remove('active');
+                    likeBtn.classList.remove('liked');
                     svg?.setAttribute('fill', 'none');
                 }
 
@@ -445,7 +587,7 @@ const Feed = {
             }
 
             container.innerHTML = tags.map(t => `
-                <a href="?tag=${encodeURIComponent(t.tag)}" class="tag-cloud-item">
+                <a href="?tag=${encodeURIComponent(t.tag)}" class="tag-item">
                     #${t.tag} <span class="tag-count">${t.count}</span>
                 </a>
             `).join('');
@@ -467,13 +609,13 @@ const Feed = {
             }
 
             container.innerHTML = authors.map(a => `
-                <div class="author-item">
-                    <div class="author-avatar">
+                <div class="author-item" onclick="Feed.showUserProfile(${a.id})" style="cursor: pointer;">
+                    <div class="author-item-avatar">
                         ${a.avatar ? `<img src="${a.avatar}" alt="">` : a.name.charAt(0).toUpperCase()}
                     </div>
-                    <div class="author-info">
-                        <span class="author-name">${a.name}</span>
-                        <span class="author-posts">${a.posts_count} постов</span>
+                    <div class="author-item-info">
+                        <span class="author-item-name">${a.name}</span>
+                        <span class="author-item-posts">${a.posts_count} постов</span>
                     </div>
                 </div>
             `).join('');
@@ -501,6 +643,72 @@ const Feed = {
                 this.loadPosts();
             }, 500);
         });
+    },
+
+    // Show user profile modal
+    async showUserProfile(userId) {
+        try {
+            const user = await API.getUser(userId);
+            const postsData = await API.getUserPosts(userId, { limit: 5 });
+
+            // Remove existing modal
+            const existing = document.getElementById('userProfileModal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.id = 'userProfileModal';
+            modal.innerHTML = `
+                <div class="modal glass" style="max-width: 500px;">
+                    <button class="modal-close" onclick="Feed.closeUserProfile()">&times;</button>
+
+                    <div class="user-profile-header" style="text-align: center; margin-bottom: 24px;">
+                        <div class="user-profile-avatar" style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; color: white; margin: 0 auto 16px;">
+                            ${user.avatar ? `<img src="${user.avatar}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <h2 style="margin: 0 0 8px; font-size: 24px;">${user.name}</h2>
+                        ${user.bio ? `<p style="color: var(--text-muted); margin: 0 0 16px;">${user.bio}</p>` : ''}
+                        <div style="display: flex; justify-content: center; gap: 24px; color: var(--text-secondary);">
+                            <div><strong>${user.posts_count || 0}</strong> постов</div>
+                            <div><strong>${user.likes_received || 0}</strong> лайков</div>
+                        </div>
+                    </div>
+
+                    ${postsData.posts.length > 0 ? `
+                        <div class="user-profile-posts">
+                            <h3 style="margin-bottom: 16px; font-size: 16px;">Последние посты</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                ${postsData.posts.map(post => `
+                                    <a href="/pages/post.html?slug=${post.slug}" class="user-profile-post" style="display: block; padding: 12px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; text-decoration: none; color: inherit;">
+                                        <p style="margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${post.content}</p>
+                                        <div style="font-size: 12px; color: var(--text-muted);">
+                                            ${UI.timeAgo(post.created_at)} • ${post.likes_count || 0} лайков • ${post.comments_count || 0} комментариев
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                            ${postsData.pagination.pages > 1 ? `
+                                <a href="?author=${userId}" style="display: block; text-align: center; margin-top: 16px; color: var(--accent-primary);">Все посты автора</a>
+                            ` : ''}
+                        </div>
+                    ` : '<p style="text-align: center; color: var(--text-muted);">Пока нет постов</p>'}
+                </div>
+            `;
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) this.closeUserProfile();
+            });
+
+            document.body.appendChild(modal);
+        } catch (err) {
+            console.error('Show user profile error:', err);
+            UI.showToast('Ошибка загрузки профиля', 'error');
+        }
+    },
+
+    closeUserProfile() {
+        const modal = document.getElementById('userProfileModal');
+        if (modal) modal.remove();
     }
 };
 
@@ -536,47 +744,41 @@ const PostPage = {
         const tags = this.post.tags || [];
 
         container.innerHTML = `
-            <div class="post-header">
-                <div class="post-author">
-                    <div class="post-avatar" style="width:50px;height:50px;font-size:20px;">
-                        ${this.post.author_name ? this.post.author_name.charAt(0).toUpperCase() : 'A'}
+            <div class="post-full-header">
+                <div class="post-full-avatar">
+                    ${this.post.author_name ? this.post.author_name.charAt(0).toUpperCase() : 'A'}
+                </div>
+                <div class="post-author-info">
+                    <span class="post-author-name">${this.post.author_name || 'Аноним'}</span>
+                    <span class="post-meta">${UI.formatDate(this.post.created_at)} • ${this.post.views || 0} просмотров</span>
+                </div>
+            </div>
+
+            <div class="post-full-content">
+                <div class="post-text">${Feed.formatContent(this.post.content)}</div>
+
+                ${images.length > 0 ? `
+                    <div class="post-images ${Feed.getImagesClass(images.length)}">
+                        ${images.map(img => `<img src="${img}" alt="" class="post-image" onclick="Feed.openImage('${img}')">`).join('')}
                     </div>
-                    <div class="post-author-info">
-                        <span class="post-author-name" style="font-size:18px;">${this.post.author_name || 'Аноним'}</span>
-                        <span class="post-date">${UI.formatDate(this.post.created_at)}</span>
+                ` : ''}
+
+                ${tags.length > 0 ? `
+                    <div class="post-tags">
+                        ${tags.map(tag => `<a href="../index.html?tag=${encodeURIComponent(tag)}" class="post-tag">#${tag}</a>`).join('')}
                     </div>
-                </div>
+                ` : ''}
             </div>
 
-            <div class="post-content" style="font-size:18px;line-height:1.7;">
-                <p>${Feed.formatContent(this.post.content)}</p>
-            </div>
-
-            ${images.length > 0 ? `
-                <div class="post-images ${images.length > 1 ? 'post-images-grid' : ''}">
-                    ${images.map(img => `<img src="${img}" alt="" class="post-image" onclick="Feed.openImage('${img}')">`).join('')}
-                </div>
-            ` : ''}
-
-            ${tags.length > 0 ? `
-                <div class="post-tags" style="margin-top:20px;">
-                    ${tags.map(tag => `<a href="../index.html?tag=${encodeURIComponent(tag)}" class="post-tag">#${tag}</a>`).join('')}
-                </div>
-            ` : ''}
-
-            <div class="post-stats" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);">
-                <span>${this.post.views} просмотров</span>
-            </div>
-
-            <div class="post-actions" style="margin-top:16px;">
-                <button class="post-action-btn ${this.post.user_liked ? 'active' : ''}" onclick="PostPage.toggleLike()">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="${this.post.user_liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+            <div class="post-full-actions">
+                <button class="post-action-btn ${this.post.user_liked ? 'liked' : ''}" onclick="PostPage.toggleLike()">
+                    <svg viewBox="0 0 24 24" fill="${this.post.user_liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
                     <span id="postLikesCount">${this.post.likes_count || 0}</span>
                 </button>
-                <button class="post-action-btn" onclick="Feed.sharePost('${this.post.slug}')">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="post-action-btn" onclick="Feed.sharePost('${this.post.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="18" cy="5" r="3"></circle>
                         <circle cx="6" cy="12" r="3"></circle>
                         <circle cx="18" cy="19" r="3"></circle>
@@ -593,15 +795,15 @@ const PostPage = {
 
         try {
             const result = await API.likePost(this.post.id);
-            const btn = document.querySelector('.post-actions .post-action-btn');
+            const btn = document.querySelector('.post-full-actions .post-action-btn');
             const svg = btn?.querySelector('svg');
             const span = document.getElementById('postLikesCount');
 
             if (result.liked) {
-                btn?.classList.add('active');
+                btn?.classList.add('liked');
                 svg?.setAttribute('fill', 'currentColor');
             } else {
-                btn?.classList.remove('active');
+                btn?.classList.remove('liked');
                 svg?.setAttribute('fill', 'none');
             }
 
@@ -685,18 +887,9 @@ const PostPage = {
     }
 };
 
-// Initialize
-document.addEventListener('DOMContentLoaded', async () => {
-    const path = window.location.pathname;
+// PostPage initialization removed - post.html has its own complete script
 
-    if (path.includes('post.html')) {
-        await PostPage.init();
-    } else if (path === '/' || path.endsWith('index.html') || path.includes('feed')) {
-        if (document.getElementById('postsFeed') || document.getElementById('feedPosts')) {
-            await Feed.init();
-        }
-    }
-});
-
+// Export immediately for app.js
 window.Feed = Feed;
 window.PostPage = PostPage;
+console.log('[Feed] Feed object exported to window');
